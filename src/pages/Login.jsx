@@ -2,20 +2,18 @@ import React, { useState } from "react";
 import axiosInstance from "../api/axiosInstance";
 import { Link, useNavigate } from "react-router-dom";
 import { GraduationCap, Lock, Mail } from "lucide-react";
+import { useForm } from "react-hook-form";
+import { toast } from "react-toastify";
 
 const Login = () => {
   const navigate = useNavigate();
-
-  const [formData, setFormData] = useState({
-    email: "",
-    password: "",
-  });
-
   const [loading, setLoading] = useState(false);
 
-  const changeHandler = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm();
 
   const redirectByRole = (role) => {
     if (role === "admin") navigate("/admin/dashboard");
@@ -23,20 +21,18 @@ const Login = () => {
     else navigate("/student/dashboard");
   };
 
-  const submitHandler = async (e) => {
-    e.preventDefault();
-
+  const submitHandler = async (data) => {
     try {
       setLoading(true);
 
-      const res = await axiosInstance.post("/auth/login", formData);
+      const res = await axiosInstance.post("/auth/login", data);
 
       localStorage.setItem("token", res.data.token);
       localStorage.setItem("user", JSON.stringify(res.data.user));
 
       redirectByRole(res.data.user.role);
     } catch (error) {
-      alert(error.response?.data?.message || "Login failed");
+      toast.error(error.response?.data?.message || "Login failed");
     } finally {
       setLoading(false);
     }
@@ -45,7 +41,6 @@ const Login = () => {
   return (
     <div className="min-h-screen bg-slate-100 flex items-center justify-center p-4">
       <div className="w-full max-w-6xl bg-white rounded-3xl shadow-2xl overflow-hidden grid grid-cols-1 lg:grid-cols-2">
-        {/* Left Image Section */}
         <div className="relative hidden lg:block">
           <img
             src="https://images.unsplash.com/photo-1434030216411-0b793f4b4173?auto=format&fit=crop&w=1200&q=80"
@@ -83,12 +78,10 @@ const Login = () => {
                 <h3 className="text-2xl font-bold">24/7</h3>
                 <p className="text-xs text-blue-100">Online Access</p>
               </div>
-
               <div className="rounded-2xl bg-white/15 backdrop-blur p-4">
                 <h3 className="text-2xl font-bold">Auto</h3>
                 <p className="text-xs text-blue-100">Evaluation</p>
               </div>
-
               <div className="rounded-2xl bg-white/15 backdrop-blur p-4">
                 <h3 className="text-2xl font-bold">Live</h3>
                 <p className="text-xs text-blue-100">Reports</p>
@@ -97,7 +90,6 @@ const Login = () => {
           </div>
         </div>
 
-        {/* Right Form Section */}
         <div className="flex items-center justify-center p-6 sm:p-10">
           <div className="w-full max-w-md">
             <div className="mb-8">
@@ -123,7 +115,7 @@ const Login = () => {
               </p>
             </div>
 
-            <form onSubmit={submitHandler} className="space-y-5">
+            <form onSubmit={handleSubmit(submitHandler)} className="space-y-5">
               <div>
                 <label className="text-sm font-medium text-slate-700">
                   Email Address
@@ -135,13 +127,22 @@ const Login = () => {
                   />
                   <input
                     type="email"
-                    name="email"
-                    value={formData.email}
-                    onChange={changeHandler}
                     placeholder="Enter your email"
+                    {...register("email", {
+                      required: "Email is required",
+                      pattern: {
+                        value: /^\S+@\S+\.\S+$/,
+                        message: "Enter valid email address",
+                      },
+                    })}
                     className="w-full rounded-xl border border-slate-200 bg-slate-50 py-3 pl-12 pr-4 outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
                   />
                 </div>
+                {errors.email && (
+                  <p className="text-red-500 text-sm mt-1">
+                    {errors.email.message}
+                  </p>
+                )}
               </div>
 
               <div>
@@ -155,13 +156,22 @@ const Login = () => {
                   />
                   <input
                     type="password"
-                    name="password"
-                    value={formData.password}
-                    onChange={changeHandler}
                     placeholder="Enter your password"
+                    {...register("password", {
+                      required: "Password is required",
+                      minLength: {
+                        value: 6,
+                        message: "Password must be at least 6 characters",
+                      },
+                    })}
                     className="w-full rounded-xl border border-slate-200 bg-slate-50 py-3 pl-12 pr-4 outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
                   />
                 </div>
+                {errors.password && (
+                  <p className="text-red-500 text-sm mt-1">
+                    {errors.password.message}
+                  </p>
+                )}
               </div>
 
               <button

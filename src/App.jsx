@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import AdminDashboard from "./pages/AdminDashboard";
@@ -10,6 +11,7 @@ function App() {
   const token = localStorage.getItem("token");
 
   return (
+    <>
     <BrowserRouter>
       <Routes>
         <Route
@@ -25,6 +27,14 @@ function App() {
         <Route path="/student/dashboard" element={<StudentDashboard />} />
       </Routes>
     </BrowserRouter>
+
+    <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        theme="colored"
+      />
+
+      </>
   );
 }
 
