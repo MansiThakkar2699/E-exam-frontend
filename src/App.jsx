@@ -15,6 +15,8 @@ import AdminLayout from "./layouts/AdminLayout";
 import FacultyLayout from "./layouts/FacultyLayout";
 import StudentLayout from "./layouts/StudentLayout";
 
+import SubjectPage from "./pages/admin/SubjectPage";
+
 function App() {
   return (
     <>
@@ -27,11 +29,11 @@ function App() {
           <Route path="/unauthorized" element={<Unauthorized />} />
 
           <Route
-            path="/admin/dashboard"
+            path="/admin/subjects"
             element={
               <ProtectedRoute allowedRoles={["admin"]}>
                 <AdminLayout>
-                  <AdminDashboard />
+                  <SubjectPage />
                 </AdminLayout>
               </ProtectedRoute>
             }
