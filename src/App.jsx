@@ -1,40 +1,68 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+
 import Login from "./pages/Login";
 import Register from "./pages/Register";
+import Unauthorized from "./pages/Unauthorized";
+
 import AdminDashboard from "./pages/AdminDashboard";
 import FacultyDashboard from "./pages/FacultyDashboard";
 import StudentDashboard from "./pages/StudentDashboard";
 
-function App() {
-  const token = localStorage.getItem("token");
+import ProtectedRoute from "./components/ProtectedRoute";
 
+import AdminLayout from "./layouts/AdminLayout";
+import FacultyLayout from "./layouts/FacultyLayout";
+import StudentLayout from "./layouts/StudentLayout";
+
+function App() {
   return (
     <>
-    <BrowserRouter>
-      <Routes>
-        <Route
-          path="/"
-          element={token ? <Navigate to="/student/dashboard" /> : <Navigate to="/login" />}
-        />
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<Navigate to="/login" />} />
 
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/unauthorized" element={<Unauthorized />} />
 
-        <Route path="/admin/dashboard" element={<AdminDashboard />} />
-        <Route path="/faculty/dashboard" element={<FacultyDashboard />} />
-        <Route path="/student/dashboard" element={<StudentDashboard />} />
-      </Routes>
-    </BrowserRouter>
+          <Route
+            path="/admin/dashboard"
+            element={
+              <ProtectedRoute allowedRoles={["admin"]}>
+                <AdminLayout>
+                  <AdminDashboard />
+                </AdminLayout>
+              </ProtectedRoute>
+            }
+          />
 
-    <ToastContainer
-        position="top-right"
-        autoClose={3000}
-        theme="colored"
-      />
+          <Route
+            path="/faculty/dashboard"
+            element={
+              <ProtectedRoute allowedRoles={["faculty"]}>
+                <FacultyLayout>
+                  <FacultyDashboard />
+                </FacultyLayout>
+              </ProtectedRoute>
+            }
+          />
 
-      </>
+          <Route
+            path="/student/dashboard"
+            element={
+              <ProtectedRoute allowedRoles={["student"]}>
+                <StudentLayout>
+                  <StudentDashboard />
+                </StudentLayout>
+              </ProtectedRoute>
+            }
+          />
+        </Routes>
+      </BrowserRouter>
+
+      <ToastContainer />
+    </>
   );
 }
 
