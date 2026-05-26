@@ -9,6 +9,7 @@ import AdminDashboard from "../pages/AdminDashboard";
 import SubjectPage from "../pages/admin/SubjectPage";
 import ExamPage from "../pages/admin/ExamPage";
 import QuestionPage from "../pages/admin/QuestionPage";
+import UserPage from "../pages/admin/UserPage";
 
 const AdminRoutes = () => {
   return (
@@ -27,6 +28,8 @@ const AdminRoutes = () => {
       <Route path="exams" element={<ExamPage />} />
 
       <Route path="questions" element={<QuestionPage />} />
+
+      <Route path="users" element={<UserPage />} />
     </Route>
   );
 };

@@ -4,6 +4,7 @@ import {
   FileText,
   ClipboardCheck,
   LogOut,
+  HelpCircle,
 } from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 
@@ -17,14 +18,22 @@ const FacultySidebar = () => {
       path: "/faculty/dashboard",
       icon: <LayoutDashboard size={20} />,
     },
+
     {
       name: "Exams",
       path: "/faculty/exams",
       icon: <FileText size={20} />,
     },
+
     {
-      name: "Evaluation",
-      path: "/faculty/evaluation",
+      name: "Questions",
+      path: "/faculty/questions",
+      icon: <HelpCircle size={20} />,
+    },
+
+    {
+      name: "Results",
+      path: "/faculty/results",
       icon: <ClipboardCheck size={20} />,
     },
   ];
@@ -36,9 +45,7 @@ const FacultySidebar = () => {
 
   return (
     <div className="w-72 bg-slate-900 text-white min-h-screen p-6">
-      <h1 className="text-2xl font-bold mb-10">
-        Faculty Panel
-      </h1>
+      <h1 className="text-2xl font-bold mb-10">Faculty Panel</h1>
 
       <div className="space-y-3">
         {menu.map((item) => (
