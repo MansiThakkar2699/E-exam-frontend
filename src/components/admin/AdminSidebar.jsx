@@ -5,6 +5,7 @@ import {
   BookOpen,
   FileText,
   LogOut,
+  HelpCircle,
 } from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 
@@ -33,6 +34,11 @@ const AdminSidebar = () => {
       path: "/admin/exams",
       icon: <FileText size={20} />,
     },
+    {
+      name: "Questions",
+      path: "/admin/questions",
+      icon: <HelpCircle size={20} />,
+    },
   ];
 
   const logoutHandler = () => {
@@ -42,9 +48,7 @@ const AdminSidebar = () => {
 
   return (
     <div className="w-72 bg-slate-900 text-white min-h-screen p-6">
-      <h1 className="text-2xl font-bold mb-10">
-        E-Exam Admin
-      </h1>
+      <h1 className="text-2xl font-bold mb-10">E-Exam Admin</h1>
 
       <div className="space-y-3">
         {menu.map((item) => (

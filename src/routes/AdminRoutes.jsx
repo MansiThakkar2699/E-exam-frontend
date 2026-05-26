@@ -8,6 +8,7 @@ import AdminLayout from "../layouts/AdminLayout";
 import AdminDashboard from "../pages/AdminDashboard";
 import SubjectPage from "../pages/admin/SubjectPage";
 import ExamPage from "../pages/admin/ExamPage";
+import QuestionPage from "../pages/admin/QuestionPage";
 
 const AdminRoutes = () => {
   return (
@@ -24,6 +25,8 @@ const AdminRoutes = () => {
       <Route path="subjects" element={<SubjectPage />} />
 
       <Route path="exams" element={<ExamPage />} />
+
+      <Route path="questions" element={<QuestionPage />} />
     </Route>
   );
 };
