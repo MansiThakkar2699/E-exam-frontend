@@ -35,7 +35,7 @@ const FacultySidebar = () => {
   };
 
   return (
-    <div className="w-72 bg-indigo-900 text-white min-h-screen p-6">
+    <div className="w-72 bg-slate-900 text-white min-h-screen p-6">
       <h1 className="text-2xl font-bold mb-10">
         Faculty Panel
       </h1>
