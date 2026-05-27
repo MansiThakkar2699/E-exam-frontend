@@ -4,19 +4,14 @@ import axiosInstance from "../../api/axiosInstance";
 
 import { toast } from "react-toastify";
 
-import {
-  Shield,
-  Trash2,
-  Users,
-} from "lucide-react";
+import { Shield, Trash2, Users } from "lucide-react";
 
 const UserPage = () => {
   const [users, setUsers] = useState([]);
 
   const [search, setSearch] = useState("");
 
-  const [roleFilter, setRoleFilter] =
-    useState("all");
+  const [roleFilter, setRoleFilter] = useState("all");
 
   // GET USERS
   const getUsers = async () => {
@@ -36,85 +31,69 @@ const UserPage = () => {
   // DELETE USER
   const deleteHandler = async (id) => {
     const confirmDelete = window.confirm(
-      "Are you sure you want to delete this user?"
+      "Are you sure you want to delete this user?",
     );
 
     if (!confirmDelete) return;
 
     try {
-      const res = await axiosInstance.delete(
-        `/user/users/${id}`
-      );
+      const res = await axiosInstance.delete(`/user/users/${id}`);
 
       toast.success(res.data.message);
 
       getUsers();
     } catch (error) {
-      toast.error(
-        error.response?.data?.message ||
-          "Delete failed"
-      );
+      toast.error(error.response?.data?.message || "Delete failed");
     }
   };
 
   // ROLE UPDATE
-  const roleChangeHandler = async (
-    id,
-    role
-  ) => {
+  const roleChangeHandler = async (id, role) => {
     try {
-      const res = await axiosInstance.put(
-        `/user/users/role/${id}`,
-        { role }
-      );
+      const res = await axiosInstance.put(`/user/users/role/${id}`, { role });
 
       toast.success(res.data.message);
 
       getUsers();
     } catch (error) {
-      toast.error(
-        error.response?.data?.message ||
-          "Role update failed"
-      );
+      toast.error(error.response?.data?.message || "Role update failed");
     }
   };
 
   // STATUS UPDATE
-  const statusChangeHandler = async (
-    id,
-    status
-  ) => {
+  const statusChangeHandler = async (id, status) => {
     try {
-      const res = await axiosInstance.put(
-        `/user/users/status/${id}`,
-        { status }
-      );
+      const res = await axiosInstance.put(`/user/users/status/${id}`, {
+        status,
+      });
 
       toast.success(res.data.message);
 
       getUsers();
     } catch (error) {
-      toast.error(
-        error.response?.data?.message ||
-          "Status update failed"
-      );
+      toast.error(error.response?.data?.message || "Status update failed");
+    }
+  };
+
+  const approveUserHandler = async (id) => {
+    try {
+      const res = await axiosInstance.put(`/user/approve/${id}`);
+
+      toast.success(res.data.message);
+
+      getUsers();
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Approval failed");
     }
   };
 
   // FILTER USERS
   const filteredUsers = users.filter((user) => {
     const matchesSearch =
-      user.fullName
-        .toLowerCase()
-        .includes(search.toLowerCase()) ||
-      user.email
-        .toLowerCase()
-        .includes(search.toLowerCase());
+      user.fullName.toLowerCase().includes(search.toLowerCase()) ||
+      user.email.toLowerCase().includes(search.toLowerCase());
 
-    const matchesRole =
-      roleFilter === "all"
-        ? true
-        : user.role === roleFilter;
+    const matchesRole = roleFilter === "all" ? true : user.role === roleFilter;
 
     return matchesSearch && matchesRole;
   });
@@ -124,13 +103,9 @@ const UserPage = () => {
       {/* TOP */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-3xl font-bold text-slate-800">
-            User Management
-          </h1>
+          <h1 className="text-3xl font-bold text-slate-800">User Management</h1>
 
-          <p className="text-slate-500 mt-1">
-            Manage students and faculties
-          </p>
+          <p className="text-slate-500 mt-1">Manage students and faculties</p>
         </div>
       </div>
 
@@ -140,28 +115,20 @@ const UserPage = () => {
           type="text"
           placeholder="Search by name or email"
           value={search}
-          onChange={(e) =>
-            setSearch(e.target.value)
-          }
+          onChange={(e) => setSearch(e.target.value)}
           className="flex-1 rounded-xl border border-slate-200 px-4 py-3"
         />
 
         <select
           value={roleFilter}
-          onChange={(e) =>
-            setRoleFilter(e.target.value)
-          }
+          onChange={(e) => setRoleFilter(e.target.value)}
           className="rounded-xl border border-slate-200 px-4 py-3"
         >
           <option value="all">All Roles</option>
 
-          <option value="student">
-            Student
-          </option>
+          <option value="student">Student</option>
 
-          <option value="faculty">
-            Faculty
-          </option>
+          <option value="faculty">Faculty</option>
 
           <option value="admin">Admin</option>
         </select>
@@ -175,9 +142,7 @@ const UserPage = () => {
           </div>
 
           <div>
-            <h2 className="font-bold text-slate-800">
-              Users
-            </h2>
+            <h2 className="font-bold text-slate-800">Users</h2>
 
             <p className="text-sm text-slate-500">
               Total {filteredUsers.length} users
@@ -199,9 +164,7 @@ const UserPage = () => {
                   Email
                 </th>
 
-                <th className="px-6 py-4 font-semibold text-slate-600">
-                  Role
-                </th>
+                <th className="px-6 py-4 font-semibold text-slate-600">Role</th>
 
                 <th className="px-6 py-4 font-semibold text-slate-600">
                   Status
@@ -215,6 +178,10 @@ const UserPage = () => {
                   Joined
                 </th>
 
+                <th className="px-6 py-4 font-semibold text-slate-600">
+                  Approval
+                </th>
+
                 <th className="px-6 py-4 font-semibold text-slate-600 text-right">
                   Actions
                 </th>
@@ -223,102 +190,84 @@ const UserPage = () => {
 
             <tbody>
               {filteredUsers.length > 0 ? (
-                filteredUsers.map(
-                  (user, index) => (
-                    <tr
-                      key={user._id}
-                      className="border-t border-slate-200 hover:bg-slate-50"
-                    >
-                      <td className="px-6 py-4">
-                        {index + 1}
-                      </td>
+                filteredUsers.map((user, index) => (
+                  <tr
+                    key={user._id}
+                    className="border-t border-slate-200 hover:bg-slate-50"
+                  >
+                    <td className="px-6 py-4">{index + 1}</td>
 
-                      <td className="px-6 py-4 font-semibold">
-                        {user.fullName}
-                      </td>
+                    <td className="px-6 py-4 font-semibold">{user.fullName}</td>
 
-                      <td className="px-6 py-4">
-                        {user.email}
-                      </td>
+                    <td className="px-6 py-4">{user.email}</td>
 
-                      <td className="px-6 py-4">
-                        <select
-                          value={user.role}
-                          onChange={(e) =>
-                            roleChangeHandler(
-                              user._id,
-                              e.target.value
-                            )
-                          }
-                          className="rounded-lg border border-slate-200 px-3 py-2"
+                    <td className="px-6 py-4">
+                      <select
+                        value={user.role}
+                        onChange={(e) =>
+                          roleChangeHandler(user._id, e.target.value)
+                        }
+                        className="rounded-lg border border-slate-200 px-3 py-2"
+                      >
+                        <option value="student">Student</option>
+
+                        <option value="faculty">Faculty</option>
+
+                        <option value="admin">Admin</option>
+                      </select>
+                    </td>
+
+                    <td className="px-6 py-4">
+                      <select
+                        value={user.status}
+                        onChange={(e) =>
+                          statusChangeHandler(user._id, e.target.value)
+                        }
+                        className={`rounded-lg px-3 py-2 border ${
+                          user.status === "active"
+                            ? "text-green-600 border-green-200 bg-green-50"
+                            : "text-red-600 border-red-200 bg-red-50"
+                        }`}
+                      >
+                        <option value="active">Active</option>
+
+                        <option value="inactive">Inactive</option>
+                      </select>
+                    </td>
+
+                    <td className="px-6 py-4">{user.department}</td>
+
+                    <td className="px-6 py-4">
+                      {new Date(user.createdAt).toLocaleDateString()}
+                    </td>
+
+                    <td className="px-6 py-4">
+                      {user.status === "active" ? (
+                        <span className="bg-green-100 text-green-600 px-3 py-1 rounded-full text-xs font-semibold">
+                          Approved
+                        </span>
+                      ) : (
+                        <button
+                          onClick={() => approveUserHandler(user._id)}
+                          className="bg-orange-100 hover:bg-orange-200 text-orange-600 px-4 py-2 rounded-lg text-sm font-semibold"
                         >
-                          <option value="student">
-                            Student
-                          </option>
+                          Approve
+                        </button>
+                      )}
+                    </td>
 
-                          <option value="faculty">
-                            Faculty
-                          </option>
-
-                          <option value="admin">
-                            Admin
-                          </option>
-                        </select>
-                      </td>
-
-                      <td className="px-6 py-4">
-                        <select
-                          value={user.status}
-                          onChange={(e) =>
-                            statusChangeHandler(
-                              user._id,
-                              e.target.value
-                            )
-                          }
-                          className={`rounded-lg px-3 py-2 border ${
-                            user.status ===
-                            "active"
-                              ? "text-green-600 border-green-200 bg-green-50"
-                              : "text-red-600 border-red-200 bg-red-50"
-                          }`}
+                    <td className="px-6 py-4">
+                      <div className="flex justify-end">
+                        <button
+                          onClick={() => deleteHandler(user._id)}
+                          className="h-9 w-9 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 flex items-center justify-center"
                         >
-                          <option value="active">
-                            Active
-                          </option>
-
-                          <option value="inactive">
-                            Inactive
-                          </option>
-                        </select>
-                      </td>
-
-                      <td className="px-6 py-4">
-                        {user.department}
-                      </td>
-
-                      <td className="px-6 py-4">
-                        {new Date(
-                          user.createdAt
-                        ).toLocaleDateString()}
-                      </td>
-
-                      <td className="px-6 py-4">
-                        <div className="flex justify-end">
-                          <button
-                            onClick={() =>
-                              deleteHandler(
-                                user._id
-                              )
-                            }
-                            className="h-9 w-9 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 flex items-center justify-center"
-                          >
-                            <Trash2 size={17} />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  )
-                )
+                          <Trash2 size={17} />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
               ) : (
                 <tr>
                   <td
