@@ -6,12 +6,20 @@ import { toast } from "react-toastify";
 
 import { Shield, Trash2, Users } from "lucide-react";
 
+import ConfirmModal from "../../components/common/ConfirmModal";
+
 const UserPage = () => {
   const [users, setUsers] = useState([]);
 
   const [search, setSearch] = useState("");
 
   const [roleFilter, setRoleFilter] = useState("all");
+
+  const [deleteModal, setDeleteModal] = useState(false);
+
+  const [selectedUserId, setSelectedUserId] = useState(null);
+
+  const [deleteLoading, setDeleteLoading] = useState(false);
 
   // GET USERS
   const getUsers = async () => {
@@ -28,22 +36,30 @@ const UserPage = () => {
     getUsers();
   }, []);
 
+  const openDeleteModal = (id) => {
+    setSelectedUserId(id);
+
+    setDeleteModal(true);
+  };
+
   // DELETE USER
-  const deleteHandler = async (id) => {
-    const confirmDelete = window.confirm(
-      "Are you sure you want to delete this user?",
-    );
-
-    if (!confirmDelete) return;
-
+  const deleteHandler = async () => {
     try {
-      const res = await axiosInstance.delete(`/user/users/${id}`);
+      setDeleteLoading(true);
+
+      const res = await axiosInstance.delete(`/user/users/${selectedUserId}`);
 
       toast.success(res.data.message);
+
+      setDeleteModal(false);
+
+      setSelectedUserId(null);
 
       getUsers();
     } catch (error) {
       toast.error(error.response?.data?.message || "Delete failed");
+    } finally {
+      setDeleteLoading(false);
     }
   };
 
@@ -61,10 +77,10 @@ const UserPage = () => {
   };
 
   // STATUS UPDATE
-  const statusChangeHandler = async (id, status) => {
+  const statusChangeHandler = async (id, accountStatus) => {
     try {
-      const res = await axiosInstance.put(`/user/users/status/${id}`, {
-        status,
+      const res = await axiosInstance.put(`/user/users/accountStatus/${id}`, {
+        accountStatus,
       });
 
       toast.success(res.data.message);
@@ -77,7 +93,7 @@ const UserPage = () => {
 
   const approveUserHandler = async (id) => {
     try {
-      const res = await axiosInstance.put(`/user/approve/${id}`);
+      const res = await axiosInstance.put(`/auth/approve/${id}`);
 
       toast.success(res.data.message);
 
@@ -219,19 +235,19 @@ const UserPage = () => {
 
                     <td className="px-6 py-4">
                       <select
-                        value={user.status}
+                        value={user.accountStatus}
                         onChange={(e) =>
                           statusChangeHandler(user._id, e.target.value)
                         }
                         className={`rounded-lg px-3 py-2 border ${
-                          user.status === "active"
-                            ? "text-green-600 border-green-200 bg-green-50"
-                            : "text-red-600 border-red-200 bg-red-50"
+                          user.accountStatus === "active"
+                            ? "bg-green-50 text-green-600"
+                            : "bg-red-50 text-red-600"
                         }`}
                       >
                         <option value="active">Active</option>
 
-                        <option value="inactive">Inactive</option>
+                        <option value="blocked">Blocked</option>
                       </select>
                     </td>
 
@@ -242,14 +258,14 @@ const UserPage = () => {
                     </td>
 
                     <td className="px-6 py-4">
-                      {user.status === "active" ? (
+                      {user.approvalStatus === "approved" ? (
                         <span className="bg-green-100 text-green-600 px-3 py-1 rounded-full text-xs font-semibold">
                           Approved
                         </span>
                       ) : (
                         <button
                           onClick={() => approveUserHandler(user._id)}
-                          className="bg-orange-100 hover:bg-orange-200 text-orange-600 px-4 py-2 rounded-lg text-sm font-semibold"
+                          className="bg-orange-100 text-orange-600 px-4 py-2 rounded-lg"
                         >
                           Approve
                         </button>
@@ -259,7 +275,7 @@ const UserPage = () => {
                     <td className="px-6 py-4">
                       <div className="flex justify-end">
                         <button
-                          onClick={() => deleteHandler(user._id)}
+                          onClick={() => openDeleteModal(user._id)}
                           className="h-9 w-9 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 flex items-center justify-center"
                         >
                           <Trash2 size={17} />
@@ -282,6 +298,20 @@ const UserPage = () => {
           </table>
         </div>
       </div>
+      <ConfirmModal
+        isOpen={deleteModal}
+        title="Delete User"
+        message="Are you sure you want to delete this user? This action cannot be undone."
+        confirmText="Delete"
+        cancelText="Cancel"
+        loading={deleteLoading}
+        type="delete"
+        onConfirm={deleteHandler}
+        onCancel={() => {
+          setDeleteModal(false);
+          setSelectedUserId(null);
+        }}
+      />
     </div>
   );
 };
