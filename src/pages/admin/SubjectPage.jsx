@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import axiosInstance from "../../api/axiosInstance";
 import { toast } from "react-toastify";
 import { BookOpen, Pencil, Plus, Trash2, X } from "lucide-react";
+import ConfirmModal from "../../components/common/ConfirmModal";
+import Pagination from "../../components/common/Pagination";
 import { useForm } from "react-hook-form";
 
 const SubjectPage = () => {
@@ -9,6 +11,12 @@ const SubjectPage = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const [editSubject, setEditSubject] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [deleteModal, setDeleteModal] = useState(false);
+  const [selectedSubId, setSelectedSubId] = useState(null);
+  const [deleteLoading, setDeleteLoading] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const limit = 10;
 
   const {
     register,
@@ -20,8 +28,9 @@ const SubjectPage = () => {
 
   const getSubjects = async () => {
     try {
-      const res = await axiosInstance.get("/sub/subjects");
+      const res = await axiosInstance.get(`/sub/subjects?page=${currentPage}&limit=${limit}`);
       setSubjects(res.data.subjects);
+      setTotalPages(res.data.totalPages);
     } catch (error) {
       toast.error(error.response?.data?.message || "Failed to fetch subjects");
     }
@@ -29,7 +38,7 @@ const SubjectPage = () => {
 
   useEffect(() => {
     getSubjects();
-  }, []);
+  }, [currentPage]);
 
   const openAddModal = () => {
     setEditSubject(null);
@@ -64,7 +73,10 @@ const SubjectPage = () => {
       setLoading(true);
 
       if (editSubject) {
-        const res = await axiosInstance.put(`/sub/subjects/${editSubject._id}`, data);
+        const res = await axiosInstance.put(
+          `/sub/subjects/${editSubject._id}`,
+          data,
+        );
         toast.success(res.data.message);
       } else {
         const res = await axiosInstance.post("/sub/subjects", data);
@@ -80,19 +92,24 @@ const SubjectPage = () => {
     }
   };
 
-  const deleteHandler = async (id) => {
-    const confirmDelete = window.confirm(
-      "Are you sure you want to delete this subject?"
-    );
+  const openDeleteModal = (id) => {
+    setSelectedSubId(id);
 
-    if (!confirmDelete) return;
+    setDeleteModal(true);
+  };
 
+  const deleteHandler = async () => {
     try {
-      const res = await axiosInstance.delete(`/sub/subjects/${id}`);
+      const res = await axiosInstance.delete(`/sub/subjects/${selectedSubId}`);
       toast.success(res.data.message);
+      setDeleteModal(false);
+
+      setSelectedUserId(null);
       getSubjects();
     } catch (error) {
       toast.error(error.response?.data?.message || "Delete failed");
+    } finally {
+      setDeleteLoading(false);
     }
   };
 
@@ -195,7 +212,7 @@ const SubjectPage = () => {
                     <td className="px-6 py-4">
                       <span
                         className={`px-3 py-1 rounded-full text-xs font-semibold ${statusBadge(
-                          subject.status
+                          subject.status,
                         )}`}
                       >
                         {subject.status}
@@ -212,7 +229,7 @@ const SubjectPage = () => {
                         </button>
 
                         <button
-                          onClick={() => deleteHandler(subject._id)}
+                          onClick={() => openDeleteModal(subject._id)}
                           className="h-9 w-9 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 flex items-center justify-center"
                         >
                           <Trash2 size={17} />
@@ -234,7 +251,27 @@ const SubjectPage = () => {
             </tbody>
           </table>
         </div>
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={setCurrentPage}
+        />
       </div>
+
+      <ConfirmModal
+        isOpen={deleteModal}
+        title="Delete Subject"
+        message="Are you sure you want to delete this subject? This action cannot be undone."
+        confirmText="Delete"
+        cancelText="Cancel"
+        loading={deleteLoading}
+        type="delete"
+        onConfirm={deleteHandler}
+        onCancel={() => {
+          setDeleteModal(false);
+          setSelectedSubId(null);
+        }}
+      />
 
       {modalOpen && (
         <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
@@ -259,7 +296,10 @@ const SubjectPage = () => {
               </button>
             </div>
 
-            <form onSubmit={handleSubmit(submitHandler)} className="p-5 space-y-4">
+            <form
+              onSubmit={handleSubmit(submitHandler)}
+              className="p-5 space-y-4"
+            >
               <div>
                 <label className="text-sm font-semibold text-slate-700">
                   Subject Name
@@ -349,8 +389,8 @@ const SubjectPage = () => {
                   {loading
                     ? "Saving..."
                     : editSubject
-                    ? "Update Subject"
-                    : "Add Subject"}
+                      ? "Update Subject"
+                      : "Add Subject"}
                 </button>
               </div>
             </form>

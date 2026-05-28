@@ -1,28 +1,23 @@
 import React, { useEffect, useState } from "react";
-
 import axiosInstance from "../../api/axiosInstance";
-
 import { toast } from "react-toastify";
-
 import { useForm } from "react-hook-form";
-
-import {
-  HelpCircle,
-  Pencil,
-  Plus,
-  Trash2,
-  X,
-} from "lucide-react";
+import { HelpCircle, Pencil, Plus, Trash2, X } from "lucide-react";
+import ConfirmModal from "../../components/common/ConfirmModal";
+import Pagination from "../../components/common/Pagination";
 
 const QuestionPage = () => {
   const [questions, setQuestions] = useState([]);
   const [exams, setExams] = useState([]);
-
   const [modalOpen, setModalOpen] = useState(false);
-
   const [editQuestion, setEditQuestion] = useState(null);
-
   const [loading, setLoading] = useState(false);
+  const [deleteModal, setDeleteModal] = useState(false);
+  const [selectedQueId, setSelectedQueId] = useState(null);
+  const [deleteLoading, setDeleteLoading] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const limit = 10;
 
   const {
     register,
@@ -46,9 +41,10 @@ const QuestionPage = () => {
   // GET QUESTIONS
   const getQuestions = async () => {
     try {
-      const res = await axiosInstance.get("/que/questions");
+      const res = await axiosInstance.get(`/que/questions?page=${currentPage}&limit=${limit}`);
 
       setQuestions(res.data.questions);
+      setTotalPages(res.data.totalPages);
     } catch (error) {
       toast.error("Failed to fetch questions");
     }
@@ -57,7 +53,7 @@ const QuestionPage = () => {
   useEffect(() => {
     getExams();
     getQuestions();
-  }, []);
+  }, [currentPage]);
 
   // OPEN ADD
   const openAddModal = () => {
@@ -118,12 +114,7 @@ const QuestionPage = () => {
       const payload = {
         exam: data.exam,
         question: data.question,
-        options: [
-          data.option1,
-          data.option2,
-          data.option3,
-          data.option4,
-        ],
+        options: [data.option1, data.option2, data.option3, data.option4],
         correctAnswer: data.correctAnswer,
         marks: data.marks,
         questionType: data.questionType,
@@ -132,15 +123,12 @@ const QuestionPage = () => {
       if (editQuestion) {
         const res = await axiosInstance.put(
           `/que/questions/${editQuestion._id}`,
-          payload
+          payload,
         );
 
         toast.success(res.data.message);
       } else {
-        const res = await axiosInstance.post(
-          "/que/questions",
-          payload
-        );
+        const res = await axiosInstance.post("/que/questions", payload);
 
         toast.success(res.data.message);
       }
@@ -149,36 +137,34 @@ const QuestionPage = () => {
 
       getQuestions();
     } catch (error) {
-      toast.error(
-        error.response?.data?.message ||
-          "Something went wrong"
-      );
+      toast.error(error.response?.data?.message || "Something went wrong");
     } finally {
       setLoading(false);
     }
   };
 
+  const openDeleteModal = (id) => {
+    setSelectedQueId(id);
+
+    setDeleteModal(true);
+  };
+
   // DELETE
-  const deleteHandler = async (id) => {
-    const confirmDelete = window.confirm(
-      "Are you sure you want to delete this question?"
-    );
-
-    if (!confirmDelete) return;
-
+  const deleteHandler = async () => {
     try {
-      const res = await axiosInstance.delete(
-        `/que/questions/${id}`
-      );
+      const res = await axiosInstance.delete(`/que/questions/${selectedQueId}`);
 
       toast.success(res.data.message);
 
+      setDeleteModal(false);
+
+      setSelectedUserId(null);
+
       getQuestions();
     } catch (error) {
-      toast.error(
-        error.response?.data?.message ||
-          "Delete failed"
-      );
+      toast.error(error.response?.data?.message || "Delete failed");
+    } finally {
+      setDeleteLoading(false);
     }
   };
 
@@ -191,9 +177,7 @@ const QuestionPage = () => {
             Question Management
           </h1>
 
-          <p className="text-slate-500 mt-1">
-            Add MCQ questions for exams
-          </p>
+          <p className="text-slate-500 mt-1">Add MCQ questions for exams</p>
         </div>
 
         <button
@@ -213,9 +197,7 @@ const QuestionPage = () => {
           </div>
 
           <div>
-            <h2 className="font-bold text-slate-800">
-              Questions
-            </h2>
+            <h2 className="font-bold text-slate-800">Questions</h2>
 
             <p className="text-sm text-slate-500">
               Total {questions.length} questions available
@@ -228,10 +210,16 @@ const QuestionPage = () => {
             <thead className="bg-slate-50">
               <tr>
                 <th className="px-6 py-4 font-semibold text-slate-600">#</th>
-                <th className="px-6 py-4 font-semibold text-slate-600">Question</th>
+                <th className="px-6 py-4 font-semibold text-slate-600">
+                  Question
+                </th>
                 <th className="px-6 py-4 font-semibold text-slate-600">Exam</th>
-                <th className="px-6 py-4 font-semibold text-slate-600">Correct Answer</th>
-                <th className="px-6 py-4 font-semibold text-slate-600">Marks</th>
+                <th className="px-6 py-4 font-semibold text-slate-600">
+                  Correct Answer
+                </th>
+                <th className="px-6 py-4 font-semibold text-slate-600">
+                  Marks
+                </th>
                 <th className="px-6 py-4 font-semibold text-slate-600 text-right">
                   Actions
                 </th>
@@ -245,41 +233,29 @@ const QuestionPage = () => {
                     key={question._id}
                     className="border-t border-slate-200 hover:bg-slate-50"
                   >
-                    <td className="px-6 py-4">
-                      {index + 1}
-                    </td>
+                    <td className="px-6 py-4">{index + 1}</td>
 
-                    <td className="px-6 py-4 max-w-sm">
-                      {question.question}
-                    </td>
+                    <td className="px-6 py-4 max-w-sm">{question.question}</td>
 
-                    <td className="px-6 py-4">
-                      {question.exam?.title}
-                    </td>
+                    <td className="px-6 py-4">{question.exam?.title}</td>
 
                     <td className="px-6 py-4 font-semibold text-green-600">
                       {question.correctAnswer}
                     </td>
 
-                    <td className="px-6 py-4">
-                      {question.marks}
-                    </td>
+                    <td className="px-6 py-4">{question.marks}</td>
 
                     <td className="px-6 py-4">
                       <div className="flex justify-end gap-2">
                         <button
-                          onClick={() =>
-                            openEditModal(question)
-                          }
+                          onClick={() => openEditModal(question)}
                           className="h-9 w-9 rounded-lg bg-amber-50 text-amber-600 hover:bg-amber-100 flex items-center justify-center"
                         >
                           <Pencil size={17} />
                         </button>
 
                         <button
-                          onClick={() =>
-                            deleteHandler(question._id)
-                          }
+                          onClick={() => openDeleteModal(question._id)}
                           className="h-9 w-9 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 flex items-center justify-center"
                         >
                           <Trash2 size={17} />
@@ -301,7 +277,26 @@ const QuestionPage = () => {
             </tbody>
           </table>
         </div>
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={setCurrentPage}
+        />
       </div>
+       <ConfirmModal
+        isOpen={deleteModal}
+        title="Delete Question"
+        message="Are you sure you want to delete this question? This action cannot be undone."
+        confirmText="Delete"
+        cancelText="Cancel"
+        loading={deleteLoading}
+        type="delete"
+        onConfirm={deleteHandler}
+        onCancel={() => {
+          setDeleteModal(false);
+          setSelectedQueId(null);
+        }}
+      />
 
       {/* MODAL */}
       {modalOpen && (
@@ -311,14 +306,10 @@ const QuestionPage = () => {
             <div className="flex items-center justify-between p-5 border-b border-slate-200">
               <div>
                 <h2 className="text-xl font-bold">
-                  {editQuestion
-                    ? "Edit Question"
-                    : "Add Question"}
+                  {editQuestion ? "Edit Question" : "Add Question"}
                 </h2>
 
-                <p className="text-sm text-slate-500">
-                  Manage exam questions
-                </p>
+                <p className="text-sm text-slate-500">Manage exam questions</p>
               </div>
 
               <button
@@ -336,9 +327,7 @@ const QuestionPage = () => {
             >
               {/* EXAM */}
               <div>
-                <label className="text-sm font-semibold">
-                  Select Exam
-                </label>
+                <label className="text-sm font-semibold">Select Exam</label>
 
                 <select
                   {...register("exam", {
@@ -349,10 +338,7 @@ const QuestionPage = () => {
                   <option value="">Select Exam</option>
 
                   {exams.map((exam) => (
-                    <option
-                      key={exam._id}
-                      value={exam._id}
-                    >
+                    <option key={exam._id} value={exam._id}>
                       {exam.title}
                     </option>
                   ))}
@@ -367,9 +353,7 @@ const QuestionPage = () => {
 
               {/* QUESTION */}
               <div>
-                <label className="text-sm font-semibold">
-                  Question
-                </label>
+                <label className="text-sm font-semibold">Question</label>
 
                 <textarea
                   rows={3}
@@ -428,9 +412,7 @@ const QuestionPage = () => {
 
               {/* CORRECT ANSWER */}
               <div>
-                <label className="text-sm font-semibold">
-                  Correct Answer
-                </label>
+                <label className="text-sm font-semibold">Correct Answer</label>
 
                 <input
                   type="text"
@@ -445,9 +427,7 @@ const QuestionPage = () => {
               {/* ROW */}
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="text-sm font-semibold">
-                    Marks
-                  </label>
+                  <label className="text-sm font-semibold">Marks</label>
 
                   <input
                     type="number"
@@ -457,9 +437,7 @@ const QuestionPage = () => {
                 </div>
 
                 <div>
-                  <label className="text-sm font-semibold">
-                    Question Type
-                  </label>
+                  <label className="text-sm font-semibold">Question Type</label>
 
                   <select
                     {...register("questionType")}
@@ -467,9 +445,7 @@ const QuestionPage = () => {
                   >
                     <option value="mcq">MCQ</option>
 
-                    <option value="truefalse">
-                      True / False
-                    </option>
+                    <option value="truefalse">True / False</option>
                   </select>
                 </div>
               </div>
@@ -492,8 +468,8 @@ const QuestionPage = () => {
                   {loading
                     ? "Saving..."
                     : editQuestion
-                    ? "Update Question"
-                    : "Add Question"}
+                      ? "Update Question"
+                      : "Add Question"}
                 </button>
               </div>
             </form>

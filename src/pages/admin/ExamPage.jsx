@@ -2,21 +2,22 @@ import React, { useEffect, useState } from "react";
 import axiosInstance from "../../api/axiosInstance";
 import { toast } from "react-toastify";
 import { useForm } from "react-hook-form";
-import {
-  ClipboardList,
-  Pencil,
-  Plus,
-  Trash2,
-  X,
-} from "lucide-react";
+import { ClipboardList, Pencil, Plus, Trash2, X } from "lucide-react";
+import ConfirmModal from "../../components/common/ConfirmModal";
+import Pagination from "../../components/common/Pagination";
 
 const ExamPage = () => {
   const [subjects, setSubjects] = useState([]);
   const [exams, setExams] = useState([]);
-
   const [modalOpen, setModalOpen] = useState(false);
   const [editExam, setEditExam] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [deleteModal, setDeleteModal] = useState(false);
+  const [selectedExamId, setSelectedExamId] = useState(null);
+  const [deleteLoading, setDeleteLoading] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const limit = 10;
 
   const {
     register,
@@ -39,8 +40,11 @@ const ExamPage = () => {
   // GET EXAMS
   const getExams = async () => {
     try {
-      const res = await axiosInstance.get("/exam/exams");
+      const res = await axiosInstance.get(
+        `/exam/exams?page=${currentPage}&limit=${limit}`,
+      );
       setExams(res.data.exams);
+      setTotalPages(res.data.totalPages);
     } catch (error) {
       toast.error("Failed to fetch exams");
     }
@@ -49,7 +53,7 @@ const ExamPage = () => {
   useEffect(() => {
     getSubjects();
     getExams();
-  }, []);
+  }, [currentPage]);
 
   // OPEN ADD
   const openAddModal = () => {
@@ -80,10 +84,7 @@ const ExamPage = () => {
     setValue("totalMarks", exam.totalMarks);
     setValue("passingMarks", exam.passingMarks);
 
-    setValue(
-      "examDate",
-      new Date(exam.examDate).toISOString().slice(0, 16)
-    );
+    setValue("examDate", new Date(exam.examDate).toISOString().slice(0, 16));
 
     setValue("status", exam.status);
 
@@ -105,7 +106,7 @@ const ExamPage = () => {
       if (editExam) {
         const res = await axiosInstance.put(
           `/exam/exams/${editExam._id}`,
-          data
+          data,
         );
 
         toast.success(res.data.message);
@@ -118,32 +119,34 @@ const ExamPage = () => {
       closeModal();
       getExams();
     } catch (error) {
-      toast.error(
-        error.response?.data?.message || "Something went wrong"
-      );
+      toast.error(error.response?.data?.message || "Something went wrong");
     } finally {
       setLoading(false);
     }
   };
 
+  const openDeleteModal = (id) => {
+    setSelectedExamId(id);
+
+    setDeleteModal(true);
+  };
+
   // DELETE
-  const deleteHandler = async (id) => {
-    const confirmDelete = window.confirm(
-      "Are you sure you want to delete this exam?"
-    );
-
-    if (!confirmDelete) return;
-
+  const deleteHandler = async () => {
     try {
-      const res = await axiosInstance.delete(`/exam/exams/${id}`);
+      const res = await axiosInstance.delete(`/exam/exams/${selectedExamId}`);
 
       toast.success(res.data.message);
 
+      setDeleteModal(false);
+
+      setSelectedUserId(null);
+
       getExams();
     } catch (error) {
-      toast.error(
-        error.response?.data?.message || "Delete failed"
-      );
+      toast.error(error.response?.data?.message || "Delete failed");
+    } finally {
+      setDeleteLoading(false);
     }
   };
 
@@ -152,13 +155,9 @@ const ExamPage = () => {
       {/* TOP */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-3xl font-bold text-slate-800">
-            Exam Management
-          </h1>
+          <h1 className="text-3xl font-bold text-slate-800">Exam Management</h1>
 
-          <p className="text-slate-500 mt-1">
-            Create and manage online exams
-          </p>
+          <p className="text-slate-500 mt-1">Create and manage online exams</p>
         </div>
 
         <button
@@ -191,12 +190,24 @@ const ExamPage = () => {
             <thead className="bg-slate-50">
               <tr>
                 <th className="px-6 py-4 font-semibold text-slate-600">#</th>
-                <th className="px-6 py-4 font-semibold text-slate-600">Title</th>
-                <th className="px-6 py-4 font-semibold text-slate-600">Subject</th>
-                <th className="px-6 py-4 font-semibold text-slate-600">Duration</th>
-                <th className="px-6 py-4 font-semibold text-slate-600">Marks</th>
-                <th className="px-6 py-4 font-semibold text-slate-600">Exam Date</th>
-                <th className="px-6 py-4 font-semibold text-slate-600 text-right">Actions</th>
+                <th className="px-6 py-4 font-semibold text-slate-600">
+                  Title
+                </th>
+                <th className="px-6 py-4 font-semibold text-slate-600">
+                  Subject
+                </th>
+                <th className="px-6 py-4 font-semibold text-slate-600">
+                  Duration
+                </th>
+                <th className="px-6 py-4 font-semibold text-slate-600">
+                  Marks
+                </th>
+                <th className="px-6 py-4 font-semibold text-slate-600">
+                  Exam Date
+                </th>
+                <th className="px-6 py-4 font-semibold text-slate-600 text-right">
+                  Actions
+                </th>
               </tr>
             </thead>
 
@@ -209,21 +220,13 @@ const ExamPage = () => {
                   >
                     <td className="px-6 py-4">{index + 1}</td>
 
-                    <td className="px-6 py-4 font-semibold">
-                      {exam.title}
-                    </td>
+                    <td className="px-6 py-4 font-semibold">{exam.title}</td>
 
-                    <td className="px-6 py-4">
-                      {exam.subject?.name}
-                    </td>
+                    <td className="px-6 py-4">{exam.subject?.name}</td>
 
-                    <td className="px-6 py-4">
-                      {exam.duration} min
-                    </td>
+                    <td className="px-6 py-4">{exam.duration} min</td>
 
-                    <td className="px-6 py-4">
-                      {exam.totalMarks}
-                    </td>
+                    <td className="px-6 py-4">{exam.totalMarks}</td>
 
                     <td className="px-6 py-4">
                       {new Date(exam.examDate).toLocaleString()}
@@ -239,7 +242,7 @@ const ExamPage = () => {
                         </button>
 
                         <button
-                          onClick={() => deleteHandler(exam._id)}
+                          onClick={() => openDeleteModal(exam._id)}
                           className="h-9 w-9 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 flex items-center justify-center"
                         >
                           <Trash2 size={17} />
@@ -261,7 +264,27 @@ const ExamPage = () => {
             </tbody>
           </table>
         </div>
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={setCurrentPage}
+        />
       </div>
+
+      <ConfirmModal
+        isOpen={deleteModal}
+        title="Delete Exam"
+        message="Are you sure you want to delete this exam? This action cannot be undone."
+        confirmText="Delete"
+        cancelText="Cancel"
+        loading={deleteLoading}
+        type="delete"
+        onConfirm={deleteHandler}
+        onCancel={() => {
+          setDeleteModal(false);
+          setSelectedExamId(null);
+        }}
+      />
 
       {/* MODAL */}
       {modalOpen && (
@@ -274,9 +297,7 @@ const ExamPage = () => {
                   {editExam ? "Edit Exam" : "Add Exam"}
                 </h2>
 
-                <p className="text-sm text-slate-500">
-                  Manage exam details
-                </p>
+                <p className="text-sm text-slate-500">Manage exam details</p>
               </div>
 
               <button
@@ -294,9 +315,7 @@ const ExamPage = () => {
             >
               {/* TITLE */}
               <div>
-                <label className="text-sm font-semibold">
-                  Exam Title
-                </label>
+                <label className="text-sm font-semibold">Exam Title</label>
 
                 <input
                   type="text"
@@ -316,9 +335,7 @@ const ExamPage = () => {
 
               {/* SUBJECT */}
               <div>
-                <label className="text-sm font-semibold">
-                  Subject
-                </label>
+                <label className="text-sm font-semibold">Subject</label>
 
                 <select
                   {...register("subject", {
@@ -329,10 +346,7 @@ const ExamPage = () => {
                   <option value="">Select Subject</option>
 
                   {subjects.map((subject) => (
-                    <option
-                      key={subject._id}
-                      value={subject._id}
-                    >
+                    <option key={subject._id} value={subject._id}>
                       {subject.name}
                     </option>
                   ))}
@@ -347,9 +361,7 @@ const ExamPage = () => {
 
               {/* DESCRIPTION */}
               <div>
-                <label className="text-sm font-semibold">
-                  Description
-                </label>
+                <label className="text-sm font-semibold">Description</label>
 
                 <textarea
                   rows={3}
@@ -376,9 +388,7 @@ const ExamPage = () => {
                 </div>
 
                 <div>
-                  <label className="text-sm font-semibold">
-                    Total Marks
-                  </label>
+                  <label className="text-sm font-semibold">Total Marks</label>
 
                   <input
                     type="number"
@@ -393,9 +403,7 @@ const ExamPage = () => {
               {/* ROW */}
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="text-sm font-semibold">
-                    Passing Marks
-                  </label>
+                  <label className="text-sm font-semibold">Passing Marks</label>
 
                   <input
                     type="number"
@@ -407,9 +415,7 @@ const ExamPage = () => {
                 </div>
 
                 <div>
-                  <label className="text-sm font-semibold">
-                    Exam Date
-                  </label>
+                  <label className="text-sm font-semibold">Exam Date</label>
 
                   <input
                     type="datetime-local"
@@ -424,9 +430,7 @@ const ExamPage = () => {
               {/* STATUS */}
               {editExam && (
                 <div>
-                  <label className="text-sm font-semibold">
-                    Status
-                  </label>
+                  <label className="text-sm font-semibold">Status</label>
 
                   <select
                     {...register("status")}
@@ -456,8 +460,8 @@ const ExamPage = () => {
                   {loading
                     ? "Saving..."
                     : editExam
-                    ? "Update Exam"
-                    : "Add Exam"}
+                      ? "Update Exam"
+                      : "Add Exam"}
                 </button>
               </div>
             </form>

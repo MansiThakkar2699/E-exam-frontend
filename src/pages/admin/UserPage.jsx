@@ -1,32 +1,30 @@
 import React, { useEffect, useState } from "react";
-
 import axiosInstance from "../../api/axiosInstance";
-
 import { toast } from "react-toastify";
-
 import { Shield, Trash2, Users } from "lucide-react";
-
 import ConfirmModal from "../../components/common/ConfirmModal";
+import Pagination from "../../components/common/Pagination";
 
 const UserPage = () => {
   const [users, setUsers] = useState([]);
-
   const [search, setSearch] = useState("");
-
   const [roleFilter, setRoleFilter] = useState("all");
-
   const [deleteModal, setDeleteModal] = useState(false);
-
   const [selectedUserId, setSelectedUserId] = useState(null);
-
   const [deleteLoading, setDeleteLoading] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const limit = 10;
 
   // GET USERS
   const getUsers = async () => {
     try {
-      const res = await axiosInstance.get("/user/users");
+      const res = await axiosInstance.get(
+        `/user/users?page=${currentPage}&limit=${limit}`,
+      );
 
       setUsers(res.data.users);
+      setTotalPages(res.data.totalPages);
     } catch (error) {
       toast.error("Failed to fetch users");
     }
@@ -34,7 +32,7 @@ const UserPage = () => {
 
   useEffect(() => {
     getUsers();
-  }, []);
+  }, [currentPage]);
 
   const openDeleteModal = (id) => {
     setSelectedUserId(id);
@@ -297,6 +295,11 @@ const UserPage = () => {
             </tbody>
           </table>
         </div>
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={setCurrentPage}
+        />
       </div>
       <ConfirmModal
         isOpen={deleteModal}
