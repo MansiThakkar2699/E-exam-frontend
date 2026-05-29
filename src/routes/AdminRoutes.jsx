@@ -10,6 +10,7 @@ import SubjectPage from "../pages/admin/SubjectPage";
 import ExamPage from "../pages/admin/ExamPage";
 import QuestionPage from "../pages/admin/QuestionPage";
 import UserPage from "../pages/admin/UserPage";
+import DepartmentPage from "../pages/admin/DepartmentPage";
 
 const AdminRoutes = () => {
   return (
@@ -30,6 +31,8 @@ const AdminRoutes = () => {
       <Route path="questions" element={<QuestionPage />} />
 
       <Route path="users" element={<UserPage />} />
+
+      <Route path="departments" element={<DepartmentPage />} />
     </Route>
   );
 };

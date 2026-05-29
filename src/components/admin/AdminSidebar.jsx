@@ -6,6 +6,7 @@ import {
   FileText,
   LogOut,
   HelpCircle,
+  Building2,
 } from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 
@@ -23,6 +24,11 @@ const AdminSidebar = () => {
       name: "Users",
       path: "/admin/users",
       icon: <Users size={20} />,
+    },
+    {
+      name: "Departments",
+      path: "/admin/departments",
+      icon : <Building2 size={20} />,
     },
     {
       name: "Subjects",
