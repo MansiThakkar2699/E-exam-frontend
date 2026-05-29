@@ -64,7 +64,7 @@ const AdminDashboard = () => {
     },
     {
       name: "Faculty",
-      value: analytics.totalFaculty,
+      value: analytics.totalFaculties,
     },
     {
       name: "Exams",
