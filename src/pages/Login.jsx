@@ -146,9 +146,20 @@ const Login = () => {
               </div>
 
               <div>
-                <label className="text-sm font-medium text-slate-700">
-                  Password
-                </label>
+                <div className="flex justify-between mb-2">
+                  <label className="text-sm font-semibold text-slate-700">
+                    Password
+                  </label>
+
+                  <button className="text-sm text-indigo-600 hover:underline">
+                    <Link
+                      to="/forgot-password"
+                      className="text-blue-500 hover:underline"
+                    >
+                      Forgot?
+                    </Link>
+                  </button>
+                </div>
                 <div className="mt-2 relative">
                   <Lock
                     size={20}

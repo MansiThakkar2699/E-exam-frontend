@@ -9,6 +9,8 @@ import Unauthorized from "./pages/Unauthorized";
 import AdminRoutes from "./routes/AdminRoutes";
 import FacultyRoutes from "./routes/FacultyRoutes";
 import StudentRoutes from "./routes/StudentRoutes";
+import ForgotPasswordPage from "./pages/ForgotPasswordPage";
+import ResetPasswordPage from "./pages/ResetPasswordPage";
 
 function App() {
   return (
@@ -22,6 +24,10 @@ function App() {
           <Route path="/register" element={<Register />} />
 
           <Route path="/unauthorized" element={<Unauthorized />} />
+
+          <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+
+          <Route path="/reset-password/:token" element={<ResetPasswordPage />}/>
 
           {AdminRoutes()}
 
