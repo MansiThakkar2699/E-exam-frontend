@@ -13,6 +13,10 @@ import AttemptExamPage from "../pages/student/AttemptExamPage";
 
 import ResultPage from "../pages/student/ResultPage";
 
+import ProfilePage from "../pages/admin/ProfilePage";
+
+import ChangePasswordPage from "../pages/admin/ChangePasswordPage";
+
 const StudentRoutes = () => {
   return (
     <Route
@@ -30,6 +34,10 @@ const StudentRoutes = () => {
       <Route path="exam/:examId" element={<AttemptExamPage />} />
 
       <Route path="results" element={<ResultPage />} />
+
+      <Route path="profile" element={<ProfilePage />} />
+
+      <Route path="change-password" element={<ChangePasswordPage />} />
     </Route>
   );
 };

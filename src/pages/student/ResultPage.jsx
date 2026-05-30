@@ -31,16 +31,6 @@ const ResultPage = () => {
 
   return (
     <div>
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-slate-800">
-          My Results
-        </h1>
-
-        <p className="text-slate-500 mt-1">
-          Track your exam performance
-        </p>
-      </div>
-
       <div className="grid gap-5">
         {results.map((result) => (
           <div

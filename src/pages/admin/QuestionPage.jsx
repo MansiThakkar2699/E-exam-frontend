@@ -171,15 +171,7 @@ const QuestionPage = () => {
   return (
     <div>
       {/* TOP */}
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="text-3xl font-bold text-slate-800">
-            Question Management
-          </h1>
-
-          <p className="text-slate-500 mt-1">Add MCQ questions for exams</p>
-        </div>
-
+      <div className="flex justify-end mb-6">
         <button
           onClick={openAddModal}
           className="bg-blue-600 text-white px-5 py-3 rounded-xl flex items-center gap-2 hover:bg-blue-700"

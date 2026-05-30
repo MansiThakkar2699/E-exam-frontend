@@ -12,6 +12,11 @@ import ExamPage from "../pages/admin/ExamPage";
 
 import QuestionPage from "../pages/admin/QuestionPage";
 
+import ProfilePage from "../pages/admin/ProfilePage";
+
+import ChangePasswordPage from "../pages/admin/ChangePasswordPage";
+
+
 const FacultyRoutes = () => {
   return (
     <Route
@@ -36,6 +41,10 @@ const FacultyRoutes = () => {
         path="questions"
         element={<QuestionPage />}
       />
+
+      <Route path="profile" element={<ProfilePage />} />
+
+      <Route path="change-password" element={<ChangePasswordPage />} />
     </Route>
   );
 };

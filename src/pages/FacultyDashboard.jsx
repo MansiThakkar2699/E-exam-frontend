@@ -43,16 +43,18 @@ const FacultyDashboard = () => {
     getDashboard();
   }, []);
 
+  const user = JSON.parse(localStorage.getItem("user"));
+
   return (
     <div>
       {/* TOP */}
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-slate-800">
-          Faculty Dashboard
-        </h1>
+        <h2 className="text-2xl font-bold text-slate-800">
+          Welcome back, {user?.fullName}
+        </h2>
 
         <p className="text-slate-500 mt-1">
-          Manage your exams and questions
+          Here's what's happening today.
         </p>
       </div>
 

@@ -12,9 +12,11 @@ import StudentRoutes from "./routes/StudentRoutes";
 import ForgotPasswordPage from "./pages/ForgotPasswordPage";
 import ResetPasswordPage from "./pages/ResetPasswordPage";
 
+import { PageProvider } from "./context/PageContext";
+
 function App() {
   return (
-    <>
+    <PageProvider>
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Navigate to="/login" />} />
@@ -38,7 +40,7 @@ function App() {
       </BrowserRouter>
 
       <ToastContainer />
-    </>
+    </PageProvider>
   );
 }
 

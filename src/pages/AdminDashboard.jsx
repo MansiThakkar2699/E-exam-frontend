@@ -90,13 +90,15 @@ const AdminDashboard = () => {
 
   const COLORS = ["#2563eb", "#f59e0b"];
 
+  const user = JSON.parse(localStorage.getItem("user"));
+
   return (
     <div className="space-y-6">
       {/* TOP */}
       <div>
-        <h1 className="text-3xl font-bold text-slate-800">Admin Dashboard</h1>
+        <h2 className="text-2xl font-bold text-slate-800">Welcome back, {user?.fullName}</h2>
 
-        <p className="text-slate-500 mt-1">Welcome to E-Exam Portal</p>
+        <p className="text-slate-500 mt-1">Here's what's happening today.</p>
       </div>
 
       {/* CARDS */}

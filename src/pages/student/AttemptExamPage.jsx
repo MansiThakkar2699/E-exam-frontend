@@ -5,6 +5,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import axiosInstance from "../../api/axiosInstance";
 
 import { toast } from "react-toastify";
+import { usePage } from "../../context/PageContext";
 
 const AttemptExamPage = () => {
   const { examId } = useParams();
@@ -25,6 +26,18 @@ const AttemptExamPage = () => {
 
   const [submitted, setSubmitted] = useState(false);
 
+  const [exam, setExam] = useState(null);
+
+  const { setDynamicTitle } = usePage();
+
+  useEffect(() => {
+    if (exam) {
+      setDynamicTitle(exam.title);
+    }
+
+    return () => setDynamicTitle("");
+  }, [exam]);
+
   // GET QUESTIONS
   const getQuestions = async () => {
     try {
@@ -33,6 +46,8 @@ const AttemptExamPage = () => {
       setQuestions(res.data.questions);
 
       const examRes = await axiosInstance.get(`/exam/exams/${examId}`);
+
+      setExam(examRes.data.exam);
 
       setTimeLeft(examRes.data.exam.duration * 60);
 
@@ -138,9 +153,19 @@ const AttemptExamPage = () => {
       {/* TOP */}
       <div className="bg-white rounded-2xl border shadow-sm p-5 mb-6 flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold">Online Exam</h1>
+          <h2 className="text-xl font-bold text-slate-800">{exam?.title}</h2>
 
-          <p className="text-slate-500 mt-1">Attempt all questions carefully</p>
+          <div className="flex items-center gap-4 mt-2 text-sm text-slate-500">
+            <span>{questions.length} Questions</span>
+
+            <span>•</span>
+
+            <span>{exam?.subject?.name}</span>
+
+            <span>•</span>
+
+            <span>{exam?.duration} Minutes</span>
+          </div>
         </div>
 
         <div className="bg-red-100 text-red-600 px-5 py-3 rounded-xl font-bold text-lg">

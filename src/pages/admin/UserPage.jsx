@@ -114,15 +114,6 @@ const UserPage = () => {
 
   return (
     <div>
-      {/* TOP */}
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="text-3xl font-bold text-slate-800">User Management</h1>
-
-          <p className="text-slate-500 mt-1">Manage students and faculties</p>
-        </div>
-      </div>
-
       {/* FILTERS */}
       <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-5 mb-6 flex flex-col md:flex-row gap-4">
         <input

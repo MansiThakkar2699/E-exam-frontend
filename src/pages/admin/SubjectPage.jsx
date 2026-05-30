@@ -151,15 +151,7 @@ const SubjectPage = () => {
   return (
     <div className="space-y-6">
       {/* TOP */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-slate-800">
-            Subject Management
-          </h1>
-
-          <p className="mt-1 text-slate-500">Manage all subjects</p>
-        </div>
-
+      <div className="mb-6 flex justify-end">
         <button
           onClick={openCreateModal}
           className="flex items-center gap-2 rounded-xl bg-blue-600 px-5 py-3 font-semibold text-white hover:bg-blue-700"
