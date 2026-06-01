@@ -29,7 +29,7 @@ const ProfilePage = () => {
           <p className="text-sm text-slate-500">Department</p>
 
           <h3 className="mt-1 text-lg font-semibold text-slate-800">
-            {user?.department || "N/A"}
+            {user.department?.name || "-"}
           </h3>
         </div>
 

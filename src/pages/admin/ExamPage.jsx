@@ -31,6 +31,7 @@ const ExamPage = () => {
   const getSubjects = async () => {
     try {
       const res = await axiosInstance.get("/sub/subjects");
+      console.log(res);
       setSubjects(res.data.subjects);
     } catch (error) {
       toast.error("Failed to fetch subjects");
@@ -197,7 +198,13 @@ const ExamPage = () => {
                   Marks
                 </th>
                 <th className="px-6 py-4 font-semibold text-slate-600">
-                  Exam Date
+                  Start Time
+                </th>
+                <th className="px-6 py-4 font-semibold text-slate-600">
+                  End Time
+                </th>
+                <th className="px-6 py-4 font-semibold text-slate-600">
+                  Status
                 </th>
                 <th className="px-6 py-4 font-semibold text-slate-600 text-right">
                   Actions
@@ -222,8 +229,23 @@ const ExamPage = () => {
 
                     <td className="px-6 py-4">{exam.totalMarks}</td>
 
-                    <td className="px-6 py-4">
-                      {new Date(exam.examDate).toLocaleString()}
+                    <td>{new Date(exam.startTime).toLocaleString()}</td>
+
+                    <td>{new Date(exam.endTime).toLocaleString()}</td>
+
+                    <td>
+                      <span
+                        className={`px-3 py-1 rounded-full text-xs font-semibold
+                        ${
+                          exam.examStatus === "live"
+                            ? "bg-green-100 text-green-600"
+                            : exam.examStatus === "upcoming"
+                              ? "bg-blue-100 text-blue-600"
+                              : "bg-slate-100 text-slate-600"
+                        }`}
+                      >
+                        {exam.examStatus}
+                      </span>
                     </td>
 
                     <td className="px-6 py-4">
@@ -327,32 +349,6 @@ const ExamPage = () => {
                 )}
               </div>
 
-              {/* SUBJECT */}
-              <div>
-                <label className="text-sm font-semibold">Subject</label>
-
-                <select
-                  {...register("subject", {
-                    required: "Subject is required",
-                  })}
-                  className="mt-2 w-full rounded-xl border border-slate-200 px-4 py-3"
-                >
-                  <option value="">Select Subject</option>
-
-                  {subjects.map((subject) => (
-                    <option key={subject._id} value={subject._id}>
-                      {subject.name}
-                    </option>
-                  ))}
-                </select>
-
-                {errors.subject && (
-                  <p className="text-red-500 text-sm mt-1">
-                    {errors.subject.message}
-                  </p>
-                )}
-              </div>
-
               {/* DESCRIPTION */}
               <div>
                 <label className="text-sm font-semibold">Description</label>
@@ -368,6 +364,31 @@ const ExamPage = () => {
               {/* ROW */}
               <div className="grid grid-cols-2 gap-4">
                 <div>
+                  <label className="text-sm font-semibold">Subject</label>
+
+                  <select
+                    {...register("subject", {
+                      required: "Subject is required",
+                    })}
+                    className="mt-2 w-full rounded-xl border border-slate-200 px-4 py-3"
+                  >
+                    <option value="">Select Subject</option>
+
+                    {subjects.map((subject) => (
+                      <option key={subject._id} value={subject._id}>
+                        {subject.name}
+                      </option>
+                    ))}
+                  </select>
+
+                  {errors.subject && (
+                    <p className="text-red-500 text-sm mt-1">
+                      {errors.subject.message}
+                    </p>
+                  )}
+                </div>
+
+                <div>
                   <label className="text-sm font-semibold">
                     Duration (minutes)
                   </label>
@@ -376,18 +397,6 @@ const ExamPage = () => {
                     type="number"
                     {...register("duration", {
                       required: "Duration is required",
-                    })}
-                    className="mt-2 w-full rounded-xl border border-slate-200 px-4 py-3"
-                  />
-                </div>
-
-                <div>
-                  <label className="text-sm font-semibold">Total Marks</label>
-
-                  <input
-                    type="number"
-                    {...register("totalMarks", {
-                      required: "Total marks required",
                     })}
                     className="mt-2 w-full rounded-xl border border-slate-200 px-4 py-3"
                   />
@@ -409,14 +418,36 @@ const ExamPage = () => {
                 </div>
 
                 <div>
-                  <label className="text-sm font-semibold">Exam Date</label>
+                  <label className="text-sm font-semibold">Total Marks</label>
+
+                  <input
+                    type="number"
+                    {...register("totalMarks", {
+                      required: "Total marks required",
+                    })}
+                    className="mt-2 w-full rounded-xl border border-slate-200 px-4 py-3"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label>Start Time</label>
 
                   <input
                     type="datetime-local"
-                    {...register("examDate", {
-                      required: "Exam date required",
-                    })}
-                    className="mt-2 w-full rounded-xl border border-slate-200 px-4 py-3"
+                    {...register("startTime")}
+                    className="w-full rounded-xl border border-slate-200 px-4 py-3"
+                  />
+                </div>
+
+                <div>
+                  <label>End Time</label>
+
+                  <input
+                    type="datetime-local"
+                    {...register("endTime")}
+                    className="w-full rounded-xl border border-slate-200 px-4 py-3"
                   />
                 </div>
               </div>

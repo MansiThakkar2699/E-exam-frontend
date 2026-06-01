@@ -165,10 +165,6 @@ const UserPage = () => {
                   Full Name
                 </th>
 
-                <th className="px-6 py-4 font-semibold text-slate-600">
-                  Email
-                </th>
-
                 <th className="px-6 py-4 font-semibold text-slate-600">Role</th>
 
                 <th className="px-6 py-4 font-semibold text-slate-600">
@@ -202,9 +198,12 @@ const UserPage = () => {
                   >
                     <td className="px-6 py-4">{index + 1}</td>
 
-                    <td className="px-6 py-4 font-semibold">{user.fullName}</td>
-
-                    <td className="px-6 py-4">{user.email}</td>
+                    <td className="px-6 py-4 font-semibold">
+                      <div>
+                        <p className="font-semibold">{user.fullName}</p>
+                        <p className="text-sm text-slate-500">{user.email}</p>
+                      </div>
+                    </td>
 
                     <td className="px-6 py-4">
                       <select
