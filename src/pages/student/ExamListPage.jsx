@@ -20,7 +20,7 @@ const ExamListPage = () => {
   const getExams = async () => {
     try {
       const res = await axiosInstance.get(
-        "/exam/exams"
+        "/exam/student-exams"
       );
 
       const activeExams =
@@ -30,6 +30,7 @@ const ExamListPage = () => {
 
       setExams(activeExams);
     } catch (error) {
+      console.log(error);
       toast.error("Failed to fetch exams");
     }
   };

@@ -1,10 +1,5 @@
 import React from "react";
-import {
-  LayoutDashboard,
-  FileText,
-  Trophy,
-  LogOut,
-} from "lucide-react";
+import { LayoutDashboard, FileText, Trophy, LogOut } from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 
 const StudentSidebar = () => {
@@ -27,13 +22,16 @@ const StudentSidebar = () => {
       path: "/student/results",
       icon: <Trophy size={20} />,
     },
+    {
+      name: "My Performance",
+      path: "/student/performance",
+      icon: <Trophy size={20} />,
+    },
   ];
 
   return (
     <div className="w-72 bg-slate-900 text-white min-h-screen p-6">
-      <h1 className="text-2xl font-bold mb-10">
-        Student Panel
-      </h1>
+      <h1 className="text-2xl font-bold mb-10">Student Panel</h1>
 
       <div className="space-y-3">
         {menu.map((item) => (

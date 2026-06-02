@@ -5,6 +5,7 @@ import {
   ClipboardCheck,
   LogOut,
   HelpCircle,
+  BarChart3,
 } from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 
@@ -35,6 +36,12 @@ const FacultySidebar = () => {
       name: "Results",
       path: "/faculty/results",
       icon: <ClipboardCheck size={20} />,
+    },
+
+    {
+      name: "Students Performance",
+      path: "/faculty/performance",
+      icon: <BarChart3 size={20}/>,
     },
   ];
 

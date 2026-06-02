@@ -15,6 +15,7 @@ import QuestionPage from "../pages/admin/QuestionPage";
 import ProfilePage from "../pages/admin/ProfilePage";
 
 import ChangePasswordPage from "../pages/admin/ChangePasswordPage";
+import FacultyPerformancePage from "../pages/faculty/FacultyPerformancePage";
 
 
 const FacultyRoutes = () => {
@@ -45,6 +46,8 @@ const FacultyRoutes = () => {
       <Route path="profile" element={<ProfilePage />} />
 
       <Route path="change-password" element={<ChangePasswordPage />} />
+
+      <Route path="performance" element={<FacultyPerformancePage />} />
     </Route>
   );
 };
