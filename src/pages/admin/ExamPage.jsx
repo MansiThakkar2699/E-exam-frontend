@@ -51,6 +51,18 @@ const ExamPage = () => {
     }
   };
 
+  const publishExam = async (id) => {
+    try {
+      const res = await axiosInstance.put(`/exam/publish/${id}`);
+
+      toast.success(res.data.message);
+
+      getExams();
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Failed to publish exam");
+    }
+  };
+
   useEffect(() => {
     getSubjects();
     getExams();
@@ -206,6 +218,9 @@ const ExamPage = () => {
                 <th className="px-6 py-4 font-semibold text-slate-600">
                   Status
                 </th>
+                <th className="px-6 py-4 font-semibold text-slate-600">
+                  Publish Status
+                </th>
                 <th className="px-6 py-4 font-semibold text-slate-600 text-right">
                   Actions
                 </th>
@@ -248,6 +263,18 @@ const ExamPage = () => {
                       </span>
                     </td>
 
+                    <td>
+                      <span
+                        className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                          exam.publishStatus === "published"
+                            ? "bg-green-100 text-green-600"
+                            : "bg-yellow-100 text-yellow-600"
+                        }`}
+                      >
+                        {exam.publishStatus}
+                      </span>
+                    </td>
+
                     <td className="px-6 py-4">
                       <div className="flex justify-end gap-2">
                         <button
@@ -264,6 +291,14 @@ const ExamPage = () => {
                           <Trash2 size={17} />
                         </button>
                       </div>
+                      {exam.publishStatus === "draft" && (
+                        <button
+                          onClick={() => publishExam(exam._id)}
+                          className="px-3 py-2 rounded-lg bg-green-600 text-white"
+                        >
+                          Publish
+                        </button>
+                      )}
                     </td>
                   </tr>
                 ))

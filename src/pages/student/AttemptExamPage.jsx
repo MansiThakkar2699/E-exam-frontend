@@ -47,6 +47,8 @@ const AttemptExamPage = () => {
 
       const examRes = await axiosInstance.get(`/exam/exams/${examId}`);
 
+      console.log(examRes)
+
       setExam(examRes.data.exam);
 
       setTimeLeft(examRes.data.exam.duration * 60);
