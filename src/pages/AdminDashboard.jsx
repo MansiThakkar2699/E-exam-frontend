@@ -269,7 +269,7 @@ const AdminDashboard = () => {
                 </div>
 
                 <span className="text-sm font-medium text-slate-600">
-                  {new Date(exam.examDate).toLocaleDateString()}
+                  {new Date(exam.startTime).toLocaleDateString()}
                 </span>
               </div>
             ))}

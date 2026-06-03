@@ -2,9 +2,10 @@ import React, { useEffect, useState } from "react";
 import axiosInstance from "../../api/axiosInstance";
 import { BookOpen, Pencil, Plus, Trash2, X } from "lucide-react";
 import { toast } from "react-toastify";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import Pagination from "../../components/common/Pagination";
 import ConfirmModal from "../../components/common/ConfirmModal";
+import Select from "react-select";
 
 const SubjectPage = () => {
   const [subjects, setSubjects] = useState([]);
@@ -21,7 +22,7 @@ const SubjectPage = () => {
   const [selectedSubjectId, setSelectedSubjectId] = useState(null);
   const limit = 10;
 
-  const { register, handleSubmit, reset, setValue } = useForm({
+  const { register, handleSubmit, control, reset, setValue } = useForm({
     defaultValues: {
       status: "active",
     },
@@ -45,13 +46,17 @@ const SubjectPage = () => {
   // GET DEPARTMENTS
   const getDepartments = async () => {
     try {
-      const res = await axiosInstance.get("/department/departments");
-
+      const res = await axiosInstance.get("/department/department-options");
       setDepartments(res.data.departments);
     } catch (error) {
       console.log(error);
     }
   };
+
+  const departmentOptions = departments.map((department) => ({
+    value: department._id,
+    label: department.name,
+  }));
 
   // GET FACULTIES
   const getFaculties = async () => {
@@ -63,6 +68,11 @@ const SubjectPage = () => {
       console.log(error);
     }
   };
+
+  const facultyOptions = faculties.map((faculty) => ({
+    value: faculty._id,
+    label: faculty.fullName,
+  }));
 
   useEffect(() => {
     getSubjects();
@@ -171,33 +181,66 @@ const SubjectPage = () => {
           className="rounded-xl border border-slate-200 px-4 py-3 outline-none focus:border-blue-500 md:col-span-2"
         />
 
-        <select
-          value={departmentFilter}
-          onChange={(e) => setDepartmentFilter(e.target.value)}
-          className="rounded-xl border border-slate-200 px-4 py-3"
-        >
-          <option value="">All Departments</option>
+        <Select
+          options={departmentOptions}
+          value={
+            departmentOptions.find(
+              (option) => option.value === departmentFilter,
+            ) || null
+          }
+          onChange={(selectedOption) =>
+            setDepartmentFilter(selectedOption?.value || "")
+          }
+          placeholder="All Departments"
+          isClearable
+          classNames={{
+            control: () =>
+              "rounded-xl border border-slate-200 min-h-[48px] px-2 py-2 hover:border-slate-300 shadow-none",
+            valueContainer: () => "px-2",
+            input: () => "text-slate-700",
+            placeholder: () => "text-slate-400",
+            menu: () =>
+              "mt-2 rounded-xl border border-slate-200 shadow-lg overflow-hidden",
+            option: ({ isFocused, isSelected }) =>
+              `px-4 py-3 cursor-pointer ${
+                isSelected
+                  ? "bg-blue-600 text-white"
+                  : isFocused
+                    ? "bg-slate-100"
+                    : "bg-white"
+              }`,
+          }}
+        />
 
-          {departments.map((department) => (
-            <option key={department._id} value={department._id}>
-              {department.name}
-            </option>
-          ))}
-        </select>
-
-        <select
-          value={facultyFilter}
-          onChange={(e) => setFacultyFilter(e.target.value)}
-          className="rounded-xl border border-slate-200 px-4 py-3"
-        >
-          <option value="">All Faculties</option>
-
-          {faculties.map((faculty) => (
-            <option key={faculty._id} value={faculty._id}>
-              {faculty.fullName}
-            </option>
-          ))}
-        </select>
+        <Select
+          options={facultyOptions}
+          value={
+            facultyOptions.find((option) => option.value === facultyFilter) ||
+            null
+          }
+          onChange={(selectedOption) =>
+            setFacultyFilter(selectedOption?.value || "")
+          }
+          placeholder="All Faculties"
+          isClearable
+          classNames={{
+            control: () =>
+              "rounded-xl border border-slate-200 min-h-[48px] px-2 py-2 hover:border-slate-300 shadow-none",
+            valueContainer: () => "px-2",
+            input: () => "text-slate-700",
+            placeholder: () => "text-slate-400",
+            menu: () =>
+              "mt-2 rounded-xl border border-slate-200 shadow-lg overflow-hidden",
+            option: ({ isFocused, isSelected }) =>
+              `px-4 py-3 cursor-pointer ${
+                isSelected
+                  ? "bg-blue-600 text-white"
+                  : isFocused
+                    ? "bg-slate-100"
+                    : "bg-white"
+              }`,
+          }}
+        />
       </div>
 
       {/* TABLE */}
@@ -354,35 +397,53 @@ const SubjectPage = () => {
                 className="w-full rounded-xl border border-slate-200 px-4 py-3 uppercase"
               />
 
-              <select
-                {...register("department", {
-                  required: true,
-                })}
-                className="w-full rounded-xl border border-slate-200 px-4 py-3"
-              >
-                <option value="">Select Department</option>
+              <Controller
+                name="department"
+                control={control}
+                rules={{ required: "Department is required" }}
+                render={({ field }) => (
+                  <Select
+                    options={departmentOptions}
+                    placeholder="Select Department"
+                    value={
+                      departmentOptions.find(
+                        (option) => option.value === field.value,
+                      ) || null
+                    }
+                    onChange={(selectedOption) =>
+                      field.onChange(selectedOption?.value || "")
+                    }
+                    classNames={{
+                      control: () =>
+                        "rounded-xl border border-slate-200 min-h-[48px] px-4 py-2 shadow-none",
+                    }}
+                  />
+                )}
+              />
 
-                {departments.map((department) => (
-                  <option key={department._id} value={department._id}>
-                    {department.name}
-                  </option>
-                ))}
-              </select>
-
-              <select
-                {...register("faculty", {
-                  required: true,
-                })}
-                className="w-full rounded-xl border border-slate-200 px-4 py-3"
-              >
-                <option value="">Select Faculty</option>
-
-                {faculties.map((faculty) => (
-                  <option key={faculty._id} value={faculty._id}>
-                    {faculty.fullName}
-                  </option>
-                ))}
-              </select>
+              <Controller
+                name="faculty"
+                control={control}
+                rules={{ required: "Faculty is required" }}
+                render={({ field }) => (
+                  <Select
+                    options={facultyOptions}
+                    placeholder="Select Faculty"
+                    value={
+                      facultyOptions.find(
+                        (option) => option.value === field.value,
+                      ) || null
+                    }
+                    onChange={(selectedOption) =>
+                      field.onChange(selectedOption?.value || "")
+                    }
+                    classNames={{
+                      control: () =>
+                        "rounded-xl border border-slate-200 min-h-[48px] px-4 py-2 shadow-none",
+                    }}
+                  />
+                )}
+              />
 
               <textarea
                 rows="4"

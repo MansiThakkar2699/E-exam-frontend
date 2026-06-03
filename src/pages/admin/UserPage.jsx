@@ -20,7 +20,7 @@ const UserPage = () => {
   const getUsers = async () => {
     try {
       const res = await axiosInstance.get(
-        `/user/users?page=${currentPage}&limit=${limit}`,
+        `/user/users?page=${currentPage}&limit=${limit}&search=${search}&role=${roleFilter}`,
       );
 
       setUsers(res.data.users);
@@ -31,8 +31,12 @@ const UserPage = () => {
   };
 
   useEffect(() => {
-    getUsers();
-  }, [currentPage]);
+    const timer = setTimeout(() => {
+      getUsers();
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [search, roleFilter, currentPage]);
 
   const openDeleteModal = (id) => {
     setSelectedUserId(id);
@@ -102,15 +106,15 @@ const UserPage = () => {
   };
 
   // FILTER USERS
-  const filteredUsers = users.filter((user) => {
-    const matchesSearch =
-      user.fullName.toLowerCase().includes(search.toLowerCase()) ||
-      user.email.toLowerCase().includes(search.toLowerCase());
+  // const filteredUsers = users.filter((user) => {
+  //   const matchesSearch =
+  //     user.fullName.toLowerCase().includes(search.toLowerCase()) ||
+  //     user.email.toLowerCase().includes(search.toLowerCase());
 
-    const matchesRole = roleFilter === "all" ? true : user.role === roleFilter;
+  //   const matchesRole = roleFilter === "all" ? true : user.role === roleFilter;
 
-    return matchesSearch && matchesRole;
-  });
+  //   return matchesSearch && matchesRole;
+  // });
 
   return (
     <div>
@@ -150,7 +154,7 @@ const UserPage = () => {
             <h2 className="font-bold text-slate-800">Users</h2>
 
             <p className="text-sm text-slate-500">
-              Total {filteredUsers.length} users
+              Total {users.length} users
             </p>
           </div>
         </div>
@@ -190,8 +194,8 @@ const UserPage = () => {
             </thead>
 
             <tbody>
-              {filteredUsers.length > 0 ? (
-                filteredUsers.map((user, index) => (
+              {users.length > 0 ? (
+                users.map((user, index) => (
                   <tr
                     key={user._id}
                     className="border-t border-slate-200 hover:bg-slate-50"
@@ -239,7 +243,7 @@ const UserPage = () => {
                       </select>
                     </td>
 
-                    <td className="px-6 py-4">{user.department}</td>
+                    <td className="px-6 py-4">{user.department.name}</td>
 
                     <td className="px-6 py-4">
                       {new Date(user.createdAt).toLocaleDateString()}

@@ -252,7 +252,7 @@ const DepartmentPage = () => {
                     <td className="px-6 py-4">{department.code}</td>
 
                     <td className="max-w-xs truncate px-6 py-4">
-                      {department.description}
+                      {department.description ? department.description : "N/A"}
                     </td>
 
                     <td className="px-6 py-4">
