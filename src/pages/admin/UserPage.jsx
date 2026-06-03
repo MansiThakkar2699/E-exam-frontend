@@ -105,17 +105,6 @@ const UserPage = () => {
     }
   };
 
-  // FILTER USERS
-  // const filteredUsers = users.filter((user) => {
-  //   const matchesSearch =
-  //     user.fullName.toLowerCase().includes(search.toLowerCase()) ||
-  //     user.email.toLowerCase().includes(search.toLowerCase());
-
-  //   const matchesRole = roleFilter === "all" ? true : user.role === roleFilter;
-
-  //   return matchesSearch && matchesRole;
-  // });
-
   return (
     <div>
       {/* FILTERS */}
