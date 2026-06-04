@@ -10,8 +10,9 @@ import {
   User,
   Users,
 } from "lucide-react";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { toast } from "react-toastify";
+import Select from "react-select";
 
 const Register = () => {
   const navigate = useNavigate();
@@ -29,6 +30,11 @@ const Register = () => {
     }
   };
 
+  const departmentOptions = departments.map((department) => ({
+    value: department._id,
+    label: department.name,
+  }));
+
   useEffect(() => {
     getDepartments();
   }, []);
@@ -37,6 +43,7 @@ const Register = () => {
     register,
     watch,
     handleSubmit,
+    control,
     formState: { errors },
   } = useForm({
     defaultValues: {
@@ -241,24 +248,32 @@ const Register = () => {
                 <div className="relative">
                   <Building2
                     size={20}
-                    className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"
+                    className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 z-10"
                   />
-                  <select
+                  <Controller
                     name="department"
-                    value={watch("department")}
-                    {...register("department", {
-                      required: "Department is required",
-                    })}
-                    className="w-full rounded-xl border border-slate-200 px-4 py-3 pl-12 pr-4"
-                  >
-                    <option value="">Select Department</option>
-
-                    {departments.map((department) => (
-                      <option key={department._id} value={department._id}>
-                        {department.name}
-                      </option>
-                    ))}
-                  </select>
+                    control={control}
+                    rules={{ required: "Department is required" }}
+                    render={({ field }) => (
+                      <Select
+                        options={departmentOptions}
+                        placeholder="Select Department"
+                        value={
+                          departmentOptions.find(
+                            (option) => option.value === field.value,
+                          ) || null
+                        }
+                        onChange={(selectedOption) =>
+                          field.onChange(selectedOption?.value || "")
+                        }
+                        isClearable
+                        classNames={{
+                          control: () =>
+                            "rounded-xl border border-slate-200 min-h-[48px] px-4 py-2 shadow-none pl-12",
+                        }}
+                      />
+                    )}
+                  />
                 </div>
                 {errors.department && (
                   <p className="text-red-500 text-sm mt-1">

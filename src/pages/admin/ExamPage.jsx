@@ -2,7 +2,15 @@ import React, { useEffect, useState } from "react";
 import axiosInstance from "../../api/axiosInstance";
 import { toast } from "react-toastify";
 import { useForm } from "react-hook-form";
-import { ClipboardList, Pencil, Plus, Trash2, X } from "lucide-react";
+import {
+  Archive,
+  ClipboardList,
+  Pencil,
+  Plus,
+  Rocket,
+  Trash2,
+  X,
+} from "lucide-react";
 import ConfirmModal from "../../components/common/ConfirmModal";
 import Pagination from "../../components/common/Pagination";
 
@@ -31,7 +39,6 @@ const ExamPage = () => {
   const getSubjects = async () => {
     try {
       const res = await axiosInstance.get("/sub/subjects");
-      console.log(res);
       setSubjects(res.data.subjects);
     } catch (error) {
       toast.error("Failed to fetch subjects");
@@ -61,6 +68,45 @@ const ExamPage = () => {
     } catch (error) {
       toast.error(error.response?.data?.message || "Failed to publish exam");
     }
+  };
+
+  const unpublishExam = async (id) => {
+    try {
+      const res = await axiosInstance.put(`/exam/unpublish/${id}`);
+
+      toast.success(res.data.message);
+
+      getExams();
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Failed to unpublish exam");
+    }
+  };
+
+  const getTimeRemaining = (examDate) => {
+    const now = new Date();
+    const start = new Date(examDate);
+
+    const diff = start - now;
+
+    if (diff <= 0) {
+      return "Exam Started";
+    }
+
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+
+    const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+
+    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+
+    if (days > 0) {
+      return `Starts in ${days} day${days > 1 ? "s" : ""}`;
+    }
+
+    if (hours > 0) {
+      return `Starts in ${hours} hour${hours > 1 ? "s" : ""}`;
+    }
+
+    return `Starts in ${minutes} minutes`;
   };
 
   useEffect(() => {
@@ -97,7 +143,8 @@ const ExamPage = () => {
     setValue("totalMarks", exam.totalMarks);
     setValue("passingMarks", exam.passingMarks);
 
-    setValue("examDate", new Date(exam.examDate).toISOString().slice(0, 16));
+    setValue("startTime", new Date(exam.startTime).toISOString().slice(0, 16));
+    setValue("endTime", new Date(exam.endTime).toISOString().slice(0, 16));
 
     setValue("status", exam.status);
 
@@ -276,29 +323,61 @@ const ExamPage = () => {
                     </td>
 
                     <td className="px-6 py-4">
-                      <div className="flex justify-end gap-2">
-                        <button
-                          onClick={() => openEditModal(exam)}
-                          className="h-9 w-9 rounded-lg bg-amber-50 text-amber-600 hover:bg-amber-100 flex items-center justify-center"
-                        >
-                          <Pencil size={17} />
-                        </button>
+                      <div className="flex flex-col items-end gap-2">
+                        {/* ACTION BUTTONS */}
+                        <div className="flex items-center gap-2">
+                          <button
+                            onClick={() => openEditModal(exam)}
+                            className="h-9 w-9 rounded-lg bg-amber-50 text-amber-600 hover:bg-amber-100 flex items-center justify-center"
+                          >
+                            <Pencil size={17} />
+                          </button>
 
-                        <button
-                          onClick={() => openDeleteModal(exam._id)}
-                          className="h-9 w-9 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 flex items-center justify-center"
-                        >
-                          <Trash2 size={17} />
-                        </button>
+                          <button
+                            onClick={() => openDeleteModal(exam._id)}
+                            className="h-9 w-9 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 flex items-center justify-center"
+                          >
+                            <Trash2 size={17} />
+                          </button>
+
+                          {exam.publishStatus === "published" ? (
+                            <button
+                              disabled={!exam.canUnpublish}
+                              onClick={() =>
+                                exam.canUnpublish && unpublishExam(exam._id)
+                              }
+                              className={`h-9 w-9 rounded-lg flex items-center justify-center
+                              ${
+                                exam.canUnpublish
+                                  ? "bg-yellow-50 text-yellow-600 hover:bg-yellow-100"
+                                  : "bg-slate-100 text-slate-400 cursor-not-allowed"
+                              }`}
+                            >
+                              <Archive size={17} />
+                            </button>
+                          ) : (
+                            <button
+                              onClick={() => publishExam(exam._id)}
+                              className="h-9 w-9 rounded-lg bg-green-50 text-green-600 hover:bg-green-100 flex items-center justify-center"
+                            >
+                              <Rocket size={17} />
+                            </button>
+                          )}
+                        </div>
+
+                        {/* STATUS */}
+                        <div className="text-xs text-right">
+                          {exam.publishStatus === "published" ? (
+                            <span className="text-slate-500">
+                              {getTimeRemaining(exam.startTime)}
+                            </span>
+                          ) : (
+                            <span className="text-orange-600 font-medium">
+                              Draft
+                            </span>
+                          )}
+                        </div>
                       </div>
-                      {exam.publishStatus === "draft" && (
-                        <button
-                          onClick={() => publishExam(exam._id)}
-                          className="px-3 py-2 rounded-lg bg-green-600 text-white"
-                        >
-                          Publish
-                        </button>
-                      )}
                     </td>
                   </tr>
                 ))

@@ -42,7 +42,7 @@ const QuestionPage = () => {
   const getQuestions = async () => {
     try {
       const res = await axiosInstance.get(`/que/questions?page=${currentPage}&limit=${limit}`);
-
+      console.log(res);
       setQuestions(res.data.questions);
       setTotalPages(res.data.totalPages);
     } catch (error) {

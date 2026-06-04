@@ -413,6 +413,7 @@ const SubjectPage = () => {
                     onChange={(selectedOption) =>
                       field.onChange(selectedOption?.value || "")
                     }
+                    isClearable
                     classNames={{
                       control: () =>
                         "rounded-xl border border-slate-200 min-h-[48px] px-4 py-2 shadow-none",
@@ -437,6 +438,7 @@ const SubjectPage = () => {
                     onChange={(selectedOption) =>
                       field.onChange(selectedOption?.value || "")
                     }
+                    isClearable
                     classNames={{
                       control: () =>
                         "rounded-xl border border-slate-200 min-h-[48px] px-4 py-2 shadow-none",
