@@ -17,6 +17,8 @@ import ProfilePage from "../pages/admin/ProfilePage";
 
 import ChangePasswordPage from "../pages/admin/ChangePasswordPage";
 import StudentPerformancePage from "../pages/student/StudentPerformancePage";
+import ViewAnswerPage from "../pages/student/ViewAnswerPage";
+import ReviewQuestionsPage from "../pages/student/ReviewQuestionsPage";
 
 const StudentRoutes = () => {
   return (
@@ -41,6 +43,10 @@ const StudentRoutes = () => {
       <Route path="change-password" element={<ChangePasswordPage />} />
 
       <Route path="performance" element={<StudentPerformancePage />} />
+
+      <Route path="result/:resultId" element={<ViewAnswerPage />} />
+
+      <Route path="result/:examId/review" element={<ReviewQuestionsPage />} />
     </Route>
   );
 };

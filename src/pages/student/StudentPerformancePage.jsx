@@ -1,17 +1,28 @@
 import React, { useEffect, useState } from "react";
 import axiosInstance from "../../api/axiosInstance";
 import { toast } from "react-toastify";
+import { BookOpen, CheckCircle, XCircle, Trophy } from "lucide-react";
+
 import {
-  BookOpen,
-  CheckCircle,
-  XCircle,
-  Trophy,
-} from "lucide-react";
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  PieChart,
+  Pie,
+  Cell,
+  BarChart,
+  Bar,
+} from "recharts";
 
 const StudentPerformancePage = () => {
   const [summary, setSummary] = useState({});
   const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [subjectPerformance, setSubjectPerformance] = useState([]);
 
   const getPerformance = async () => {
     try {
@@ -32,8 +43,19 @@ const StudentPerformancePage = () => {
     }
   };
 
+  const getSubjectPerformance = async () => {
+    try {
+      const res = await axiosInstance.get("/result/subject-wise-performance");
+
+      setSubjectPerformance(res.data.data);
+    } catch (error) {
+      toast.error("Failed to load subject performance");
+    }
+  };
+
   useEffect(() => {
     getPerformance();
+    getSubjectPerformance();
   }, []);
 
   const stats = [
@@ -67,6 +89,34 @@ const StudentPerformancePage = () => {
     },
   ];
 
+  const trendData =
+    results?.map((result) => ({
+      exam: result.exam?.title,
+      percentage: result.percentage,
+    })) || [];
+
+  const passCount = results.filter((r) => r.resultStatus === "pass").length;
+
+  const failCount = results.filter((r) => r.resultStatus === "fail").length;
+
+  const pieData = [
+    {
+      name: "Pass",
+      value: passCount,
+    },
+    {
+      name: "Fail",
+      value: failCount,
+    },
+  ];
+
+  const COLORS = ["#22c55e", "#ef4444"];
+
+  const chartData = subjectPerformance.map((item) => ({
+    subject: item.subject,
+    percentage: item.averagePercentage,
+  }));
+
   return (
     <div className="space-y-6">
       {/* STATS */}
@@ -80,9 +130,7 @@ const StudentPerformancePage = () => {
               <div>
                 <p className="text-slate-500">{item.title}</p>
 
-                <h2 className="mt-2 text-3xl font-bold">
-                  {item.value}
-                </h2>
+                <h2 className="mt-2 text-3xl font-bold">{item.value}</h2>
               </div>
 
               <div
@@ -95,65 +143,59 @@ const StudentPerformancePage = () => {
         ))}
       </div>
 
-      {/* RESULTS TABLE */}
-      <div className="overflow-hidden rounded-2xl border bg-white shadow-sm">
-        <div className="border-b p-5">
-          <h2 className="text-lg font-bold">Exam History</h2>
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+        <div className="bg-white rounded-2xl border shadow-sm p-6">
+          <h2 className="text-xl font-bold mb-5">Performance Trend</h2>
+
+          <ResponsiveContainer width="100%" height={300}>
+            <LineChart data={trendData}>
+              <CartesianGrid strokeDasharray="3 3" />
+
+              <XAxis dataKey="exam" />
+
+              <YAxis />
+
+              <Tooltip />
+
+              <Line
+                type="monotone"
+                dataKey="percentage"
+                stroke="#2563eb"
+                strokeWidth={3}
+              />
+            </LineChart>
+          </ResponsiveContainer>
         </div>
 
-        <div className="overflow-x-auto">
-          <table className="w-full text-left">
-            <thead className="bg-slate-50">
-              <tr>
-                <th className="px-6 py-4">Exam</th>
-                <th className="px-6 py-4">Subject</th>
-                <th className="px-6 py-4">Marks</th>
-                <th className="px-6 py-4">Percentage</th>
-                <th className="px-6 py-4">Result</th>
-              </tr>
-            </thead>
+        <div className="bg-white rounded-2xl border shadow-sm p-6">
+          <h2 className="text-xl font-bold mb-5">Pass / Fail Ratio</h2>
 
-            <tbody>
-              {results.map((result) => (
-                <tr key={result._id} className="border-t">
-                  <td className="px-6 py-4">
-                    {result.exam?.title}
-                  </td>
+          <ResponsiveContainer width="100%" height={300}>
+            <PieChart>
+              <Pie data={pieData} dataKey="value" outerRadius={100} label>
+                {pieData.map((entry, index) => (
+                  <Cell key={index} fill={COLORS[index]} />
+                ))}
+              </Pie>
 
-                  <td className="px-6 py-4">
-                    {result.exam?.subject?.name}
-                  </td>
-
-                  <td className="px-6 py-4">
-                    {result.obtainedMarks}/{result.totalMarks}
-                  </td>
-
-                  <td className="px-6 py-4">
-                    {result.percentage}%
-                  </td>
-
-                  <td className="px-6 py-4">
-                    <span
-                      className={`rounded-full px-3 py-1 text-xs font-semibold ${
-                        result.resultStatus === "pass"
-                          ? "bg-green-100 text-green-600"
-                          : "bg-red-100 text-red-600"
-                      }`}
-                    >
-                      {result.resultStatus}
-                    </span>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-
-          {results.length === 0 && !loading && (
-            <div className="p-10 text-center text-slate-500">
-              No results available
-            </div>
-          )}
+              <Tooltip />
+            </PieChart>
+          </ResponsiveContainer>
         </div>
+      </div>
+
+      <div className="bg-white rounded-2xl border shadow-sm p-6">
+        <h2 className="text-xl font-bold mb-5">Subject-wise Performance</h2>
+
+        <ResponsiveContainer width="100%" height={350}>
+          <BarChart data={chartData}>
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis dataKey="subject" />
+            <YAxis domain={[0, 100]} />
+            <Tooltip />
+            <Bar dataKey="percentage" radius={[8, 8, 0, 0]} />
+          </BarChart>
+        </ResponsiveContainer>
       </div>
     </div>
   );
