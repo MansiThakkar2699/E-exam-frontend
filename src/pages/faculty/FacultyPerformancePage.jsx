@@ -15,8 +15,8 @@ const FacultyPerformancePage = () => {
   const getPerformance = async () => {
     try {
       const [summaryRes, resultRes] = await Promise.all([
-        axiosInstance.get("/result/faculty-summary"),
         axiosInstance.get("/result/faculty-performance"),
+        axiosInstance.get("/result/faculty-summary"),
       ]);
 
       setSummary(summaryRes.data);
