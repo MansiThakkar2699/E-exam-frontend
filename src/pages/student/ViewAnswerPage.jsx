@@ -83,7 +83,7 @@ const ViewAnswerPage = () => {
             </p>
 
             <h3 className="text-xl font-bold text-blue-600">
-              {result.percentage}%
+              {result.percentage.toFixed(2)}%
             </h3>
           </div>
 

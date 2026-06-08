@@ -268,7 +268,7 @@ const StudentDashboard = () => {
                         : "text-red-600"
                     }`}
                   >
-                    {result.percentage}%
+                    {result.percentage.toFixed(2)}%
                   </div>
                 </div>
               ))}

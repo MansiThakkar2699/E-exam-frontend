@@ -92,7 +92,7 @@ const StudentPerformancePage = () => {
   const trendData =
     results?.map((result) => ({
       exam: result.exam?.title,
-      percentage: result.percentage,
+      percentage: result.percentage.toFixed(2),
     })) || [];
 
   const passCount = results.filter((r) => r.resultStatus === "pass").length;
