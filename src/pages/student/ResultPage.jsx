@@ -8,10 +8,14 @@ import { Eye, FileText, Download } from "lucide-react";
 
 import { useNavigate } from "react-router-dom";
 
+import downloadResultPDF from "../../utils/DownloadResultPDF";
+
 const ResultPage = () => {
   const [results, setResults] = useState([]);
 
   const navigate = useNavigate();
+
+  const user = JSON.parse(localStorage.getItem("user"));
 
   // GET RESULTS
   const getResults = async () => {
@@ -118,7 +122,7 @@ const ResultPage = () => {
                 </button>
 
                 <button
-                  onClick={() => downloadResultPDF(result)}
+                  onClick={() => downloadResultPDF(result, user)}
                   className="flex items-center gap-2 rounded-xl border border-green-200 bg-green-50 px-4 py-3 text-green-700 font-medium hover:bg-green-100 transition"
                 >
                   <Download size={18} />
