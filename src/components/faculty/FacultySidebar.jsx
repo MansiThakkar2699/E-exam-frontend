@@ -33,12 +33,6 @@ const FacultySidebar = () => {
     },
 
     {
-      name: "Results",
-      path: "/faculty/results",
-      icon: <ClipboardCheck size={20} />,
-    },
-
-    {
       name: "Students Performance",
       path: "/faculty/performance",
       icon: <BarChart3 size={20}/>,
